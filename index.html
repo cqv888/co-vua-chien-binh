@@ -145,12 +145,42 @@ body.fs .stage.flat2d{--bw:min(96vw,86vh)}
 .avpick{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.avpick button{width:44px;height:44px;border-radius:12px;font-size:24px;background:rgba(255,255,255,.12)}.avpick button.on{background:var(--gold)}
 .kidlist{display:grid;gap:8px;text-align:left}.kidlist div{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.25)}.kidlist b{flex:1;font-family:var(--font-d)}
 .status.ok{color:#8ff0b6}.status.err{color:#ff9a90}
+/* ---------- flip book ---------- */
+.book{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;max-width:820px;margin:8px auto 14px}
+.book .nav{width:52px;height:52px;border-radius:50%;background:var(--gold);color:#2a1a05;font:800 26px var(--font-d);box-shadow:0 4px 0 #7a5308}
+.book .nav:disabled{opacity:.3;box-shadow:none}
+.bookstage{perspective:1600px;min-height:min(70vh,520px)}
+.page{position:relative;background:linear-gradient(180deg,#fff9ec,#f6e9cc);color:#2a2233;border-radius:14px;padding:22px 26px 46px;min-height:min(70vh,520px);box-shadow:0 12px 30px rgba(0,0,0,.45),inset 0 0 0 6px #fff;transform-origin:left center;user-select:none;touch-action:pan-y}
+.page::before{content:"";position:absolute;left:0;top:0;bottom:0;width:18px;background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,0));border-radius:14px 0 0 14px}
+.page.turnL{animation:turnL .55s ease-in}.page.turnR{animation:turnR .55s ease-in}
+@keyframes turnL{0%{transform:rotateY(0)}50%{transform:rotateY(-80deg)}51%{transform:rotateY(80deg)}100%{transform:rotateY(0)}}
+@keyframes turnR{0%{transform:rotateY(0)}50%{transform:rotateY(80deg)}51%{transform:rotateY(-80deg)}100%{transform:rotateY(0)}}
+.lesson .page h2{color:#a92a1f;font-size:clamp(26px,4.5vw,40px);margin:0 0 10px;text-align:center}
+.lesson .page h1{color:#a92a1f;font-size:clamp(34px,7vw,64px);text-align:center;margin:30px 0 10px}
+.lesson .page p{font-size:clamp(17px,2.4vw,22px);line-height:1.5;margin:8px 0;color:#2a2233}.lesson .page b{color:#a92a1f}
+.lesson .page .big{font-size:clamp(20px,3vw,26px);font-weight:800}
+.lesson .page .fig{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.lesson .page .fig svg.ico{width:clamp(60px,10vw,96px);height:auto}
+.lesson .page .fig svg.ico.w{color:#fff4d6;--line:#8a6a2c;--trim:#f2b636}.lesson .page .fig svg.ico.b{color:#3a3244;--line:#120d1a;--trim:#e4483a}
+.lesson .page .mini{margin:0 auto;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.lesson .page .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}
+.lesson .page .no{font-size:14px;color:#8a6a2c;position:absolute;bottom:14px;right:22px;font-weight:800}
+.lesson .page .cover{text-align:center;padding:20px 0}
+.lesson .page .cover .pieces-row svg{width:clamp(44px,8vw,80px);height:auto}
+.lesson .page .tipbox{background:#fff;border:3px dashed #f2b636;border-radius:12px;padding:10px 14px;margin:10px 0}
+.booktools{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.booktools .pg{font:800 18px var(--font-d);color:var(--gold)}
+.bookdots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}.bookdots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25)}.bookdots i.on{background:var(--gold)}.bookdots i.seen{background:rgba(242,182,54,.55)}
+@media (max-width:600px){.book{grid-template-columns:1fr;gap:6px}.book .nav{display:none}.page{padding:16px 16px 40px}.page .row2{grid-template-columns:1fr}}
 /* ---------- WebGL canvas ---------- */
 .stage canvas.gl{display:block;width:100% !important;height:100% !important;border-radius:14px;touch-action:none;cursor:pointer}
 .stage.gl3d{padding:0;width:100%;max-width:820px;height:min(72vh,calc(100% * .78),640px);aspect-ratio:1.25;position:relative;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,rgba(120,90,160,.35),rgba(0,0,0,0) 70%)}
 .zoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
 .zoom button{width:38px;height:38px;border-radius:10px;background:rgba(0,0,0,.45);color:#fff;font:800 20px var(--font-d);border:1px solid rgba(255,255,255,.25)}
 .zoom button:hover{background:rgba(0,0,0,.7)}
+.zoom button.q{font-size:18px}.zoom button.on{background:rgba(51,196,111,.7);border-color:#8ff0b6}
+.zoom .lbl2{position:absolute;right:46px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.75);color:#fff;font:800 13px var(--font-d);padding:4px 8px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
+.zoom button{position:relative}.zoom button:hover .lbl2,.zoom button.show .lbl2{opacity:1}
 .clocks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .clock{display:flex;flex-direction:column;align-items:center;padding:8px 6px;border-radius:14px;background:rgba(0,0,0,.25);border:2px solid transparent;font-variant-numeric:tabular-nums}
 .clock b{font:800 30px var(--font-d);line-height:1;letter-spacing:.5px}
@@ -399,11 +429,13 @@ body.fs .fsbar{display:flex}
 <section class="screen" id="scrLearn">
   <h1 style="font-size:36px">📖 Học chơi cờ vua</h1>
   <div class="tabs">
+    <button class="tab" data-lesson="book">📚 Sách cho bé</button>
     <button class="tab on" data-lesson="l1">🌟 Lớp 1 – Bắt đầu</button>
     <button class="tab" data-lesson="l5">🏆 Lớp 5 – Nâng cao</button>
     <button class="tab" data-lesson="video">📺 Xem video</button>
     <button class="tab" data-lesson="how">🖱️ Cách dùng trang này</button>
   </div>
+  <div class="lesson" id="book"></div>
   <div class="lesson on" id="l1"></div>
   <div class="lesson" id="l5"></div>
   <div class="lesson" id="video"></div>
@@ -452,7 +484,7 @@ body.fs .fsbar{display:flex}
       <div class="banner" id="banner">Chiếu!</div>
       <div class="stage" id="stage"></div>
       <div class="stage flat2d hidden" id="stage2d"></div>
-      <div class="zoom" id="zoom" style="position:absolute"><button id="zoomIn" aria-label="Phóng to">+</button><button id="zoomOut" aria-label="Thu nhỏ">−</button><button id="btnFs" aria-label="Toàn màn hình">⛶</button></div>
+      <div class="zoom" id="zoom" style="position:absolute"><button id="qView" aria-label="Đổi góc nhìn" title="Góc nhìn: Phẳng / Từ trên / 3D / Ảo">🟩</button><button id="qAnim" aria-label="Bật tắt hoạt cảnh" title="Hoạt cảnh ăn quân">🎬</button><button id="qSet" aria-label="Đổi bộ quân" title="Đổi bộ quân">♟</button><button id="zoomIn" aria-label="Phóng to">+</button><button id="zoomOut" aria-label="Thu nhỏ">−</button><button id="btnFs" aria-label="Toàn màn hình">⛶</button></div>
       <div class="bubble" id="bubble"></div>
       <div class="fsbar"><div class="fsinfo" id="fsInfo"></div><button class="btn sm ghost" id="btnExitFs">✕ Thoát</button></div>
       <div class="duel" id="duel" aria-hidden="true">
@@ -1290,14 +1322,14 @@ const Voice = (() => {
   let viVoice = null;
   function pickVoice() { try { const vs = speechSynthesis.getVoices(); viVoice = vs.find(v => /^vi/i.test(v.lang)) || null; } catch (e) { } }
   if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-  function say(text) {
-    if (!on || !('speechSynthesis' in window)) return;
+  function say(text, force) {
+    if ((!on && !force) || !('speechSynthesis' in window)) return;
     try { const u = new SpeechSynthesisUtterance(text); u.lang = 'vi-VN'; u.rate = .95; u.pitch = 1.05; u.volume = 1; if (viVoice) u.voice = viVoice; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { }
   }
   return {
     get on() { return on; }, set on(v) { on = v; store.set('voice', v); if (!v && 'speechSynthesis' in window) speechSynthesis.cancel(); },
     get available() { return 'speechSynthesis' in window; },
-    say,
+    say, read(text) { say(text, true); },
     move(m, st) {
       let t;
       if (m.castle) t = 'Nhập thành';
@@ -1732,6 +1764,51 @@ function buildLessons() {
     ${VIDEOS.length ? '<h2>🎬 Video bố mẹ đã chọn</h2><div class="vids">' + VIDEOS.map(v => `<div class="vid"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${v.id}" title="${v.title || ''}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><p>${v.title || ''}</p></div>`).join('') + '</div>' : ''}
     <p style="color:#e9dcc9">Mẹo: bật <b>🗣️ Đọc nước</b> và chơi lại thế cờ vừa xem trong video ở chế độ <b>2 bạn cùng máy</b>.</p>`;
   $('#l1').innerHTML = l1; $('#l5').innerHTML = l5; $('#video').innerHTML = video; $('#how').innerHTML = how;
+  buildBook();
+}
+
+// ===== "Sách cờ vua cho bé" — our own picture book, page-flip style =====
+function buildBook() {
+  const ico = p => `<svg class="ico ${p[0]}" viewBox="0 0 100 120"><use href="#p-${p[1]}"/></svg>`;
+  const dots = arr => Object.fromEntries(arr.map(k => [k, 'dot']));
+  const START = {}; 'rnbqkbnr'.split('').forEach((c, i) => { START['0,' + i] = 'b' + c.toUpperCase(); START['7,' + i] = 'w' + c.toUpperCase(); START['1,' + i] = 'bP'; START['6,' + i] = 'wP'; });
+  const PAGES = [
+    `<div class="cover"><h1>Sách cờ vua<br>cho bé</h1><p class="big">Cùng Ken và Na học chơi cờ vua!</p><div class="fig pieces-row">${ico('wK')}${ico('wQ')}${ico('wR')}${ico('wB')}${ico('wN')}${ico('wP')}</div><p>Lật trang bằng nút ▶ hoặc vuốt sang trái. Bấm 🔊 để nghe đọc.</p></div>`,
+    `<h2>Bàn cờ</h2><div class="row2">${mini(4, {}, {})}<div><p class="big">Bàn cờ có <b>64 ô</b>: 32 ô sáng và 32 ô tối, xếp xen kẽ như bánh kẻ ô.</p><p>Các cột có tên <b>a, b, c, d, e, f, g, h</b>. Các hàng có số <b>1 đến 8</b>. Mỗi ô có tên riêng, ví dụ ô <b>e4</b>.</p></div></div>`,
+    `<h2>Hai đội quân</h2><p class="big">Đội <b>Trắng</b> và đội <b>Đen</b>. Mỗi đội có <b>16</b> chiến binh.</p><div class="fig">${ico('wK')}${ico('wQ')}${ico('wR')}${ico('wB')}${ico('wN')}${ico('wP')}</div><div class="fig">${ico('bK')}${ico('bQ')}${ico('bR')}${ico('bB')}${ico('bN')}${ico('bP')}</div><p>1 Vua, 1 Hậu, 2 Xe, 2 Tượng, 2 Mã và 8 Tốt. Trắng luôn đi trước!</p>`,
+    `<h2>Xếp quân ra trận</h2><div class="row2">${mini(8, START, {})}<div><p>Hàng cuối theo thứ tự: <b>Xe – Mã – Tượng – Hậu – Vua – Tượng – Mã – Xe</b>.</p><p>Hàng trước là 8 chú Tốt đứng thành hàng rào.</p><p class="tipbox">Mẹo nhớ: <b>"Hậu đứng ô cùng màu"</b> — Hậu trắng ở ô sáng, Hậu đen ở ô tối.</p></div></div>`,
+    `<h2>Tốt – chú lính nhỏ</h2><div class="row2">${mini(4, { '3,1': 'wP', '2,2': 'bP' }, { '2,1': 'dot', '1,1': 'dot', '2,2': 'x' })}<div><div class="fig">${ico('wP')}</div><p class="big">Tốt đi <b>thẳng lên 1 ô</b>. Lần đầu được đi 2 ô.</p><p>Nhưng khi <b>ăn</b>, Tốt ăn <b>chéo</b>! Tốt không bao giờ đi lùi.</p><p>Đi tới cuối bàn, Tốt biến thành <b>Hậu</b>! 🎉</p></div></div>`,
+    `<h2>Xe – toà tháp</h2><div class="row2">${mini(5, { '2,2': 'wR' }, dots(['0,2', '1,2', '3,2', '4,2', '2,0', '2,1', '2,3', '2,4']))}<div><div class="fig">${ico('wR')}</div><p class="big">Xe đi <b>thẳng</b> và <b>ngang</b>, xa bao nhiêu cũng được.</p><p>Xe không nhảy qua đầu quân khác được.</p></div></div>`,
+    `<h2>Tượng – nhà ảo thuật</h2><div class="row2">${mini(5, { '2,2': 'wB' }, dots(['0,0', '1,1', '3,3', '4,4', '0,4', '1,3', '3,1', '4,0']))}<div><div class="fig">${ico('wB')}</div><p class="big">Tượng đi <b>chéo</b>, xa bao nhiêu cũng được.</p><p>Tượng ở ô sáng thì cả đời ở ô sáng. Mỗi đội có 1 Tượng ô sáng và 1 Tượng ô tối.</p></div></div>`,
+    `<h2>Mã – chú ngựa</h2><div class="row2">${mini(5, { '2,2': 'wN', '1,2': 'bP' }, dots(['0,1', '0,3', '1,0', '1,4', '3,0', '3,4', '4,1', '4,3']))}<div><div class="fig">${ico('wN')}</div><p class="big">Mã nhảy hình <b>chữ L</b>: 2 ô thẳng rồi 1 ô ngang.</p><p>Mã là quân duy nhất <b>nhảy qua đầu</b> quân khác!</p></div></div>`,
+    `<h2>Hậu – nữ hoàng</h2><div class="row2">${mini(5, { '2,2': 'wQ' }, dots(['0,2', '1,2', '3,2', '4,2', '2,0', '2,1', '2,3', '2,4', '0,0', '1,1', '3,3', '4,4', '0,4', '1,3', '3,1', '4,0']))}<div><div class="fig">${ico('wQ')}</div><p class="big">Hậu mạnh nhất: đi <b>thẳng, ngang và chéo</b>, xa bao nhiêu cũng được.</p><p>Giữ Hậu cẩn thận nhé!</p></div></div>`,
+    `<h2>Vua – quan trọng nhất</h2><div class="row2">${mini(3, { '1,1': 'wK' }, dots(['0,0', '0,1', '0,2', '1,0', '1,2', '2,0', '2,1', '2,2']))}<div><div class="fig">${ico('wK')}</div><p class="big">Vua đi <b>1 ô</b> theo mọi hướng.</p><p>Vua bị bắt là thua cả ván, nên phải luôn <b>bảo vệ Vua</b>!</p></div></div>`,
+    `<h2>Ăn quân</h2><div class="row2">${mini(4, { '3,0': 'wR', '3,3': 'bN' }, { '3,3': 'x', '3,1': 'dot', '3,2': 'dot' })}<div><p class="big">Đi quân của mình tới ô có quân địch → quân địch bị <b>ăn</b> và rời bàn cờ.</p><p>Trong trò chơi này, mỗi lần ăn quân là một trận <b>đấu kiếm</b> ⚔️!</p></div></div>`,
+    `<h2>Chiếu!</h2><div class="row2">${mini(4, { '0,3': 'bK', '3,3': 'wR' }, { '0,3': 'hl', '1,3': 'dot', '2,3': 'dot' })}<div><p class="big"><b>Chiếu</b> = Vua đang bị doạ ăn.</p><p>Phải cứu Vua ngay bằng 1 trong 3 cách:</p><p>🏃 <b>Chạy</b> Vua sang ô khác<br>🛡️ <b>Chặn</b> đường bằng quân khác<br>⚔️ <b>Ăn</b> quân đang doạ</p></div></div>`,
+    `<h2>Chiếu hết!</h2><div class="row2">${mini(4, { '0,3': 'bK', '1,3': 'wQ', '2,2': 'wK' }, { '0,3': 'hl' })}<div><p class="big"><b>Chiếu hết</b> = Vua bị doạ mà không còn cách nào cứu.</p><p>Ván cờ kết thúc — bên chiếu hết <b>thắng</b>! 🏆</p><p class="tipbox">Nếu Vua không bị doạ nhưng không còn nước đi nào → <b>hoà</b> (gọi là "pat").</p></div></div>`,
+    `<h2>Nhập thành</h2><div class="row2">${mini(4, { '3,0': 'wK', '3,3': 'wR' }, { '3,2': 'dot', '3,1': 'hl' })}<div><p class="big">Vua đi <b>2 ô</b> về phía Xe, Xe nhảy qua đứng cạnh Vua.</p><p>Chỉ được khi Vua và Xe <b>chưa đi lần nào</b>, giữa hai quân trống, và Vua không bị chiếu.</p><p>Đây là cách giấu Vua vào góc an toàn! 🏰</p></div></div>`,
+    `<h2>3 điều nhớ kỹ</h2><p class="big">1️⃣ Mỗi lượt chỉ đi <b>một</b> quân. Nghĩ kỹ rồi hãy chạm.</p><p class="big">2️⃣ Trước khi đi, hỏi: <b>"Quân mình tới đó có bị ăn không?"</b></p><p class="big">3️⃣ Luôn nhìn xem <b>Vua mình</b> có an toàn không.</p><div class="fig">${ico('wK')}${ico('bK')}</div>`,
+    `<div class="cover"><h1>Bé sẵn sàng<br>ra trận! 🎉</h1><p class="big">Giờ hãy bấm <b>Chơi với máy</b> mức Dễ để thử tài nhé.</p><div class="fig pieces-row">${ico('wN')}${ico('wQ')}${ico('wK')}</div><p>Đọc lại sách bất cứ lúc nào ở mục <b>Học chơi → 📚 Sách cho bé</b>.</p></div>`
+  ];
+  const root = $('#book'); let cur = Math.min(store.get('bookPage', 0), PAGES.length - 1); const seen = new Set(store.get('bookSeen', []));
+  root.innerHTML = `<div class="booktools"><span class="pg" id="bkPg"></span><button class="btn sm ghost" id="bkRead">🔊 Đọc trang này</button><button class="btn sm ghost" id="bkFirst">⏮ Về đầu</button><a class="btn sm ghost" target="_blank" rel="noopener" href="https://fliphtml5.com/zpmyn/iicr/">📖 Sách gốc (FlipHTML5)</a></div>
+    <div class="book"><button class="nav" id="bkPrev" aria-label="Trang trước">◀</button><div class="bookstage"><div class="page" id="bkPage"></div></div><button class="nav" id="bkNext" aria-label="Trang sau">▶</button></div><div class="bookdots" id="bkDots"></div>`;
+  const page = $('#bkPage');
+  function render(dir) {
+    page.innerHTML = PAGES[cur] + `<span class="no">${cur + 1} / ${PAGES.length}</span>`;
+    page.classList.remove('turnL', 'turnR'); if (dir) { void page.offsetWidth; page.classList.add(dir > 0 ? 'turnL' : 'turnR'); }
+    $('#bkPg').textContent = `Trang ${cur + 1}/${PAGES.length}`; $('#bkPrev').disabled = cur === 0; $('#bkNext').disabled = cur === PAGES.length - 1;
+    seen.add(cur); store.set('bookPage', cur); store.set('bookSeen', [...seen]);
+    $('#bkDots').innerHTML = PAGES.map((_, i) => `<i class="${i === cur ? 'on' : seen.has(i) ? 'seen' : ''}"></i>`).join('');
+    if (seen.size === PAGES.length && typeof Cloud !== 'undefined' && Cloud.active && !(Cloud.active.data && Cloud.active.data.bookDone)) { Cloud.save({ bookDone: true }); flashBanner('📚 Đọc hết sách! ⭐'); Sound.win(); }
+  }
+  const go = d => { const n = cur + d; if (n < 0 || n >= PAGES.length) return; cur = n; Sound.select(); render(d); };
+  $('#bkPrev').onclick = () => go(-1); $('#bkNext').onclick = () => go(1); $('#bkFirst').onclick = () => { cur = 0; render(-1); };
+  $('#bkRead').onclick = () => { const t = page.innerText.replace(/\d+ \/ \d+$/, '').replace(/\s+/g, ' ').trim(); Voice.read(t); };
+  // swipe + keys
+  let sx = null; page.addEventListener('pointerdown', e => { sx = e.clientX; }); page.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); });
+  document.addEventListener('keydown', e => { if (!$('#scrLearn').classList.contains('on') || !$('#book').classList.contains('on')) return; if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
+  render(0);
 }
 
 // ===== AI level picker (inline in modal) =====
@@ -1827,17 +1904,33 @@ function boot() {
     const flat = App.viewMode === 'flat', next = flat ? view2d : view3d;
     if (next !== view) { const flipped = view.flipped; view = next; view.flipped = flipped; view.layout(); if (App.state) { App.sel = null; App.legal = []; view.sync(App.state.board); refresh(); } }
     $('#stage').classList.toggle('hidden', flat); $('#stage2d').classList.toggle('hidden', !flat);
-    $('#zoom').classList.toggle('hidden', !view.zoomBy);
+    $('#zoomIn').classList.toggle('hidden', !view.zoomBy); $('#zoomOut').classList.toggle('hidden', !view.zoomBy);
     [view3d, hero].forEach(v => { if (v.setView) v.setView(flat ? '3d' : App.viewMode); });
     $('#stage').classList.toggle('flat', App.viewMode === '2d'); $('#heroStage').classList.toggle('flat', App.viewMode === '2d');
   };
   $$('#segView button').forEach(b => b.onclick = () => { App.viewMode = b.dataset.view; store.set('viewMode', App.viewMode); applyView(); });
   applyView();
+  // quick controls on the board corner (also visible in fullscreen)
+  const VIEWS = ['flat', '2d', '3d', 'vr'], VICON = { flat: '🟩', '2d': '⬛', '3d': '🎲', vr: '👁' }, VNAME = { flat: 'Phẳng', '2d': 'Từ trên', '3d': '3D', vr: 'Ảo' };
+  const SETS_ORDER = ['classic', 'royal', 'candy', 'wood', 'glass', 'neon', 'toy', 'metal', 'crystal'], SNAME = { classic: 'Cổ điển', royal: 'Vàng–Đỏ', candy: 'Hồng–Xanh', wood: 'Gỗ', glass: 'Thuỷ tinh', neon: 'Neon', toy: 'Đồ chơi', metal: 'Vàng–Bạc', crystal: 'Pha lê' };
+  const bubble = (btn, text) => { let l = btn.querySelector('.lbl2'); if (!l) { l = document.createElement('span'); l.className = 'lbl2'; btn.appendChild(l); } l.textContent = text; btn.classList.add('show'); clearTimeout(btn._t); btn._t = setTimeout(() => btn.classList.remove('show'), 1400); };
+  const syncQuick = () => {
+    const qv = $('#qView'); qv.firstChild.textContent = VICON[App.viewMode] || '🎲'; qv.classList.toggle('on', App.viewMode === 'flat');
+    const qa = $('#qAnim'); qa.firstChild.textContent = App.fxMode === 'off' ? '⏩' : '🎬'; qa.classList.toggle('on', App.fxMode !== 'off');
+    $('#zoomIn').classList.toggle('hidden', !view.zoomBy); $('#zoomOut').classList.toggle('hidden', !view.zoomBy);
+  };
+  ['qView', 'qAnim', 'qSet'].forEach(id => { const b = $('#' + id); b.classList.add('q'); b.innerHTML = '<span>' + b.textContent + '</span>'; });
+  $('#qView').onclick = () => { const i = VIEWS.indexOf(App.viewMode); App.viewMode = VIEWS[(i + 1) % VIEWS.length]; store.set('viewMode', App.viewMode); applyView(); bubble($('#qView'), 'Nhìn: ' + VNAME[App.viewMode]); };
+  $('#qAnim').onclick = () => { $('#btnAnim').click(); bubble($('#qAnim'), App.fxMode === 'off' ? 'Hoạt cảnh: Tắt' : 'Hoạt cảnh: Bật'); };
+  $('#qSet').onclick = () => { const i = SETS_ORDER.indexOf(App.pieceSet); App.pieceSet = SETS_ORDER[(i + 1) % SETS_ORDER.length]; store.set('pieceSet', App.pieceSet); applySet(); bubble($('#qSet'), 'Quân: ' + SNAME[App.pieceSet]); };
+  const _applyView = applyView, _applyFx = applyFx;
+  const hookQuick = () => { try { syncQuick(); } catch (e) { } };
+  $$('#segView button, #segFx button, #btnAnim, #qView, #qAnim').forEach(b => b.addEventListener('click', () => setTimeout(hookQuick, 0)));
+  hookQuick();
   const applyClockSel = () => $$('#segClock button').forEach(b => b.classList.toggle('on', +b.dataset.tc === App.clock));
   $$('#segClock button').forEach(b => b.onclick = () => { App.clock = +b.dataset.tc; store.set('clock', App.clock); applyClockSel(); });
   applyClockSel();
   $('#zoomIn').onclick = () => view.zoomBy && view.zoomBy(.85); $('#zoomOut').onclick = () => view.zoomBy && view.zoomBy(1.18);
-  $('#zoom').classList.toggle('hidden', !view.zoomBy);
   $('#btnUndo').onclick = () => {
     if (App.busy || !App.history.length) return;
     let s = App.history.pop();

@@ -51,3 +51,6 @@ Tính năng đã có:
 - Bàn cờ **Phẳng** (2D kiểu chess.com): `buildBoardCSS` trong `app.js` + CSS `.stage.flat2d`; góc nhìn "Phẳng" trong segView. Ăn quân ở 2D dùng màn So kiếm (popup) vì không có hoạt cảnh trên bàn.
 - **Supabase** (`src/cloud.js`): URL + publishable key nằm trong file (an toàn, RLS bảo vệ). Bảng `profiles` — tạo bằng `supabase/schema.sql` trong SQL Editor (chạy 1 lần). Bố mẹ đăng nhập email+mật khẩu (Supabase Auth); mỗi bé 1 hồ sơ + PIN (băm SHA-256 phía trình duyệt); `data` jsonb lưu games/wins theo level/lastLevel/settings/history. Cài đặt đồng bộ qua `store.set` → `Cloud.queueSetting`.
 - Nếu muốn bỏ bước xác nhận email khi tạo tài khoản: Supabase → Authentication → Providers → Email → tắt "Confirm email".
+- Nút nhanh ở góc bàn cờ (hiện cả khi toàn màn hình): 🟩/⬛/🎲/👁 đổi góc nhìn, 🎬/⏩ hoạt cảnh, ♟ đổi bộ quân, + − ⛶.
+- Tab "📚 Sách cho bé": sách lật trang tự viết (16 trang) trong `buildBook()` (app.js) — thêm/sửa trang trong mảng `PAGES`. Có nút đọc to, vuốt/phím mũi tên, nhớ trang đang đọc; đọc hết được ⭐ lưu vào hồ sơ (`bookDone`). Link sách gốc FlipHTML5 chỉ mở tab ngoài (không sao chép nội dung).
+- Bảng `profiles` đã tạo trên Supabase ngày 16/09/2026 (chạy schema.sql).

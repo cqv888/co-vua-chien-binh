@@ -91,14 +91,14 @@ const Voice = (() => {
   let viVoice = null;
   function pickVoice() { try { const vs = speechSynthesis.getVoices(); viVoice = vs.find(v => /^vi/i.test(v.lang)) || null; } catch (e) { } }
   if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-  function say(text) {
-    if (!on || !('speechSynthesis' in window)) return;
+  function say(text, force) {
+    if ((!on && !force) || !('speechSynthesis' in window)) return;
     try { const u = new SpeechSynthesisUtterance(text); u.lang = 'vi-VN'; u.rate = .95; u.pitch = 1.05; u.volume = 1; if (viVoice) u.voice = viVoice; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { }
   }
   return {
     get on() { return on; }, set on(v) { on = v; store.set('voice', v); if (!v && 'speechSynthesis' in window) speechSynthesis.cancel(); },
     get available() { return 'speechSynthesis' in window; },
-    say,
+    say, read(text) { say(text, true); },
     move(m, st) {
       let t;
       if (m.castle) t = 'Nhập thành';
@@ -533,6 +533,51 @@ function buildLessons() {
     ${VIDEOS.length ? '<h2>🎬 Video bố mẹ đã chọn</h2><div class="vids">' + VIDEOS.map(v => `<div class="vid"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${v.id}" title="${v.title || ''}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><p>${v.title || ''}</p></div>`).join('') + '</div>' : ''}
     <p style="color:#e9dcc9">Mẹo: bật <b>🗣️ Đọc nước</b> và chơi lại thế cờ vừa xem trong video ở chế độ <b>2 bạn cùng máy</b>.</p>`;
   $('#l1').innerHTML = l1; $('#l5').innerHTML = l5; $('#video').innerHTML = video; $('#how').innerHTML = how;
+  buildBook();
+}
+
+// ===== "Sách cờ vua cho bé" — our own picture book, page-flip style =====
+function buildBook() {
+  const ico = p => `<svg class="ico ${p[0]}" viewBox="0 0 100 120"><use href="#p-${p[1]}"/></svg>`;
+  const dots = arr => Object.fromEntries(arr.map(k => [k, 'dot']));
+  const START = {}; 'rnbqkbnr'.split('').forEach((c, i) => { START['0,' + i] = 'b' + c.toUpperCase(); START['7,' + i] = 'w' + c.toUpperCase(); START['1,' + i] = 'bP'; START['6,' + i] = 'wP'; });
+  const PAGES = [
+    `<div class="cover"><h1>Sách cờ vua<br>cho bé</h1><p class="big">Cùng Ken và Na học chơi cờ vua!</p><div class="fig pieces-row">${ico('wK')}${ico('wQ')}${ico('wR')}${ico('wB')}${ico('wN')}${ico('wP')}</div><p>Lật trang bằng nút ▶ hoặc vuốt sang trái. Bấm 🔊 để nghe đọc.</p></div>`,
+    `<h2>Bàn cờ</h2><div class="row2">${mini(4, {}, {})}<div><p class="big">Bàn cờ có <b>64 ô</b>: 32 ô sáng và 32 ô tối, xếp xen kẽ như bánh kẻ ô.</p><p>Các cột có tên <b>a, b, c, d, e, f, g, h</b>. Các hàng có số <b>1 đến 8</b>. Mỗi ô có tên riêng, ví dụ ô <b>e4</b>.</p></div></div>`,
+    `<h2>Hai đội quân</h2><p class="big">Đội <b>Trắng</b> và đội <b>Đen</b>. Mỗi đội có <b>16</b> chiến binh.</p><div class="fig">${ico('wK')}${ico('wQ')}${ico('wR')}${ico('wB')}${ico('wN')}${ico('wP')}</div><div class="fig">${ico('bK')}${ico('bQ')}${ico('bR')}${ico('bB')}${ico('bN')}${ico('bP')}</div><p>1 Vua, 1 Hậu, 2 Xe, 2 Tượng, 2 Mã và 8 Tốt. Trắng luôn đi trước!</p>`,
+    `<h2>Xếp quân ra trận</h2><div class="row2">${mini(8, START, {})}<div><p>Hàng cuối theo thứ tự: <b>Xe – Mã – Tượng – Hậu – Vua – Tượng – Mã – Xe</b>.</p><p>Hàng trước là 8 chú Tốt đứng thành hàng rào.</p><p class="tipbox">Mẹo nhớ: <b>"Hậu đứng ô cùng màu"</b> — Hậu trắng ở ô sáng, Hậu đen ở ô tối.</p></div></div>`,
+    `<h2>Tốt – chú lính nhỏ</h2><div class="row2">${mini(4, { '3,1': 'wP', '2,2': 'bP' }, { '2,1': 'dot', '1,1': 'dot', '2,2': 'x' })}<div><div class="fig">${ico('wP')}</div><p class="big">Tốt đi <b>thẳng lên 1 ô</b>. Lần đầu được đi 2 ô.</p><p>Nhưng khi <b>ăn</b>, Tốt ăn <b>chéo</b>! Tốt không bao giờ đi lùi.</p><p>Đi tới cuối bàn, Tốt biến thành <b>Hậu</b>! 🎉</p></div></div>`,
+    `<h2>Xe – toà tháp</h2><div class="row2">${mini(5, { '2,2': 'wR' }, dots(['0,2', '1,2', '3,2', '4,2', '2,0', '2,1', '2,3', '2,4']))}<div><div class="fig">${ico('wR')}</div><p class="big">Xe đi <b>thẳng</b> và <b>ngang</b>, xa bao nhiêu cũng được.</p><p>Xe không nhảy qua đầu quân khác được.</p></div></div>`,
+    `<h2>Tượng – nhà ảo thuật</h2><div class="row2">${mini(5, { '2,2': 'wB' }, dots(['0,0', '1,1', '3,3', '4,4', '0,4', '1,3', '3,1', '4,0']))}<div><div class="fig">${ico('wB')}</div><p class="big">Tượng đi <b>chéo</b>, xa bao nhiêu cũng được.</p><p>Tượng ở ô sáng thì cả đời ở ô sáng. Mỗi đội có 1 Tượng ô sáng và 1 Tượng ô tối.</p></div></div>`,
+    `<h2>Mã – chú ngựa</h2><div class="row2">${mini(5, { '2,2': 'wN', '1,2': 'bP' }, dots(['0,1', '0,3', '1,0', '1,4', '3,0', '3,4', '4,1', '4,3']))}<div><div class="fig">${ico('wN')}</div><p class="big">Mã nhảy hình <b>chữ L</b>: 2 ô thẳng rồi 1 ô ngang.</p><p>Mã là quân duy nhất <b>nhảy qua đầu</b> quân khác!</p></div></div>`,
+    `<h2>Hậu – nữ hoàng</h2><div class="row2">${mini(5, { '2,2': 'wQ' }, dots(['0,2', '1,2', '3,2', '4,2', '2,0', '2,1', '2,3', '2,4', '0,0', '1,1', '3,3', '4,4', '0,4', '1,3', '3,1', '4,0']))}<div><div class="fig">${ico('wQ')}</div><p class="big">Hậu mạnh nhất: đi <b>thẳng, ngang và chéo</b>, xa bao nhiêu cũng được.</p><p>Giữ Hậu cẩn thận nhé!</p></div></div>`,
+    `<h2>Vua – quan trọng nhất</h2><div class="row2">${mini(3, { '1,1': 'wK' }, dots(['0,0', '0,1', '0,2', '1,0', '1,2', '2,0', '2,1', '2,2']))}<div><div class="fig">${ico('wK')}</div><p class="big">Vua đi <b>1 ô</b> theo mọi hướng.</p><p>Vua bị bắt là thua cả ván, nên phải luôn <b>bảo vệ Vua</b>!</p></div></div>`,
+    `<h2>Ăn quân</h2><div class="row2">${mini(4, { '3,0': 'wR', '3,3': 'bN' }, { '3,3': 'x', '3,1': 'dot', '3,2': 'dot' })}<div><p class="big">Đi quân của mình tới ô có quân địch → quân địch bị <b>ăn</b> và rời bàn cờ.</p><p>Trong trò chơi này, mỗi lần ăn quân là một trận <b>đấu kiếm</b> ⚔️!</p></div></div>`,
+    `<h2>Chiếu!</h2><div class="row2">${mini(4, { '0,3': 'bK', '3,3': 'wR' }, { '0,3': 'hl', '1,3': 'dot', '2,3': 'dot' })}<div><p class="big"><b>Chiếu</b> = Vua đang bị doạ ăn.</p><p>Phải cứu Vua ngay bằng 1 trong 3 cách:</p><p>🏃 <b>Chạy</b> Vua sang ô khác<br>🛡️ <b>Chặn</b> đường bằng quân khác<br>⚔️ <b>Ăn</b> quân đang doạ</p></div></div>`,
+    `<h2>Chiếu hết!</h2><div class="row2">${mini(4, { '0,3': 'bK', '1,3': 'wQ', '2,2': 'wK' }, { '0,3': 'hl' })}<div><p class="big"><b>Chiếu hết</b> = Vua bị doạ mà không còn cách nào cứu.</p><p>Ván cờ kết thúc — bên chiếu hết <b>thắng</b>! 🏆</p><p class="tipbox">Nếu Vua không bị doạ nhưng không còn nước đi nào → <b>hoà</b> (gọi là "pat").</p></div></div>`,
+    `<h2>Nhập thành</h2><div class="row2">${mini(4, { '3,0': 'wK', '3,3': 'wR' }, { '3,2': 'dot', '3,1': 'hl' })}<div><p class="big">Vua đi <b>2 ô</b> về phía Xe, Xe nhảy qua đứng cạnh Vua.</p><p>Chỉ được khi Vua và Xe <b>chưa đi lần nào</b>, giữa hai quân trống, và Vua không bị chiếu.</p><p>Đây là cách giấu Vua vào góc an toàn! 🏰</p></div></div>`,
+    `<h2>3 điều nhớ kỹ</h2><p class="big">1️⃣ Mỗi lượt chỉ đi <b>một</b> quân. Nghĩ kỹ rồi hãy chạm.</p><p class="big">2️⃣ Trước khi đi, hỏi: <b>"Quân mình tới đó có bị ăn không?"</b></p><p class="big">3️⃣ Luôn nhìn xem <b>Vua mình</b> có an toàn không.</p><div class="fig">${ico('wK')}${ico('bK')}</div>`,
+    `<div class="cover"><h1>Bé sẵn sàng<br>ra trận! 🎉</h1><p class="big">Giờ hãy bấm <b>Chơi với máy</b> mức Dễ để thử tài nhé.</p><div class="fig pieces-row">${ico('wN')}${ico('wQ')}${ico('wK')}</div><p>Đọc lại sách bất cứ lúc nào ở mục <b>Học chơi → 📚 Sách cho bé</b>.</p></div>`
+  ];
+  const root = $('#book'); let cur = Math.min(store.get('bookPage', 0), PAGES.length - 1); const seen = new Set(store.get('bookSeen', []));
+  root.innerHTML = `<div class="booktools"><span class="pg" id="bkPg"></span><button class="btn sm ghost" id="bkRead">🔊 Đọc trang này</button><button class="btn sm ghost" id="bkFirst">⏮ Về đầu</button><a class="btn sm ghost" target="_blank" rel="noopener" href="https://fliphtml5.com/zpmyn/iicr/">📖 Sách gốc (FlipHTML5)</a></div>
+    <div class="book"><button class="nav" id="bkPrev" aria-label="Trang trước">◀</button><div class="bookstage"><div class="page" id="bkPage"></div></div><button class="nav" id="bkNext" aria-label="Trang sau">▶</button></div><div class="bookdots" id="bkDots"></div>`;
+  const page = $('#bkPage');
+  function render(dir) {
+    page.innerHTML = PAGES[cur] + `<span class="no">${cur + 1} / ${PAGES.length}</span>`;
+    page.classList.remove('turnL', 'turnR'); if (dir) { void page.offsetWidth; page.classList.add(dir > 0 ? 'turnL' : 'turnR'); }
+    $('#bkPg').textContent = `Trang ${cur + 1}/${PAGES.length}`; $('#bkPrev').disabled = cur === 0; $('#bkNext').disabled = cur === PAGES.length - 1;
+    seen.add(cur); store.set('bookPage', cur); store.set('bookSeen', [...seen]);
+    $('#bkDots').innerHTML = PAGES.map((_, i) => `<i class="${i === cur ? 'on' : seen.has(i) ? 'seen' : ''}"></i>`).join('');
+    if (seen.size === PAGES.length && typeof Cloud !== 'undefined' && Cloud.active && !(Cloud.active.data && Cloud.active.data.bookDone)) { Cloud.save({ bookDone: true }); flashBanner('📚 Đọc hết sách! ⭐'); Sound.win(); }
+  }
+  const go = d => { const n = cur + d; if (n < 0 || n >= PAGES.length) return; cur = n; Sound.select(); render(d); };
+  $('#bkPrev').onclick = () => go(-1); $('#bkNext').onclick = () => go(1); $('#bkFirst').onclick = () => { cur = 0; render(-1); };
+  $('#bkRead').onclick = () => { const t = page.innerText.replace(/\d+ \/ \d+$/, '').replace(/\s+/g, ' ').trim(); Voice.read(t); };
+  // swipe + keys
+  let sx = null; page.addEventListener('pointerdown', e => { sx = e.clientX; }); page.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); });
+  document.addEventListener('keydown', e => { if (!$('#scrLearn').classList.contains('on') || !$('#book').classList.contains('on')) return; if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
+  render(0);
 }
 
 // ===== AI level picker (inline in modal) =====
@@ -628,17 +673,33 @@ function boot() {
     const flat = App.viewMode === 'flat', next = flat ? view2d : view3d;
     if (next !== view) { const flipped = view.flipped; view = next; view.flipped = flipped; view.layout(); if (App.state) { App.sel = null; App.legal = []; view.sync(App.state.board); refresh(); } }
     $('#stage').classList.toggle('hidden', flat); $('#stage2d').classList.toggle('hidden', !flat);
-    $('#zoom').classList.toggle('hidden', !view.zoomBy);
+    $('#zoomIn').classList.toggle('hidden', !view.zoomBy); $('#zoomOut').classList.toggle('hidden', !view.zoomBy);
     [view3d, hero].forEach(v => { if (v.setView) v.setView(flat ? '3d' : App.viewMode); });
     $('#stage').classList.toggle('flat', App.viewMode === '2d'); $('#heroStage').classList.toggle('flat', App.viewMode === '2d');
   };
   $$('#segView button').forEach(b => b.onclick = () => { App.viewMode = b.dataset.view; store.set('viewMode', App.viewMode); applyView(); });
   applyView();
+  // quick controls on the board corner (also visible in fullscreen)
+  const VIEWS = ['flat', '2d', '3d', 'vr'], VICON = { flat: '🟩', '2d': '⬛', '3d': '🎲', vr: '👁' }, VNAME = { flat: 'Phẳng', '2d': 'Từ trên', '3d': '3D', vr: 'Ảo' };
+  const SETS_ORDER = ['classic', 'royal', 'candy', 'wood', 'glass', 'neon', 'toy', 'metal', 'crystal'], SNAME = { classic: 'Cổ điển', royal: 'Vàng–Đỏ', candy: 'Hồng–Xanh', wood: 'Gỗ', glass: 'Thuỷ tinh', neon: 'Neon', toy: 'Đồ chơi', metal: 'Vàng–Bạc', crystal: 'Pha lê' };
+  const bubble = (btn, text) => { let l = btn.querySelector('.lbl2'); if (!l) { l = document.createElement('span'); l.className = 'lbl2'; btn.appendChild(l); } l.textContent = text; btn.classList.add('show'); clearTimeout(btn._t); btn._t = setTimeout(() => btn.classList.remove('show'), 1400); };
+  const syncQuick = () => {
+    const qv = $('#qView'); qv.firstChild.textContent = VICON[App.viewMode] || '🎲'; qv.classList.toggle('on', App.viewMode === 'flat');
+    const qa = $('#qAnim'); qa.firstChild.textContent = App.fxMode === 'off' ? '⏩' : '🎬'; qa.classList.toggle('on', App.fxMode !== 'off');
+    $('#zoomIn').classList.toggle('hidden', !view.zoomBy); $('#zoomOut').classList.toggle('hidden', !view.zoomBy);
+  };
+  ['qView', 'qAnim', 'qSet'].forEach(id => { const b = $('#' + id); b.classList.add('q'); b.innerHTML = '<span>' + b.textContent + '</span>'; });
+  $('#qView').onclick = () => { const i = VIEWS.indexOf(App.viewMode); App.viewMode = VIEWS[(i + 1) % VIEWS.length]; store.set('viewMode', App.viewMode); applyView(); bubble($('#qView'), 'Nhìn: ' + VNAME[App.viewMode]); };
+  $('#qAnim').onclick = () => { $('#btnAnim').click(); bubble($('#qAnim'), App.fxMode === 'off' ? 'Hoạt cảnh: Tắt' : 'Hoạt cảnh: Bật'); };
+  $('#qSet').onclick = () => { const i = SETS_ORDER.indexOf(App.pieceSet); App.pieceSet = SETS_ORDER[(i + 1) % SETS_ORDER.length]; store.set('pieceSet', App.pieceSet); applySet(); bubble($('#qSet'), 'Quân: ' + SNAME[App.pieceSet]); };
+  const _applyView = applyView, _applyFx = applyFx;
+  const hookQuick = () => { try { syncQuick(); } catch (e) { } };
+  $$('#segView button, #segFx button, #btnAnim, #qView, #qAnim').forEach(b => b.addEventListener('click', () => setTimeout(hookQuick, 0)));
+  hookQuick();
   const applyClockSel = () => $$('#segClock button').forEach(b => b.classList.toggle('on', +b.dataset.tc === App.clock));
   $$('#segClock button').forEach(b => b.onclick = () => { App.clock = +b.dataset.tc; store.set('clock', App.clock); applyClockSel(); });
   applyClockSel();
   $('#zoomIn').onclick = () => view.zoomBy && view.zoomBy(.85); $('#zoomOut').onclick = () => view.zoomBy && view.zoomBy(1.18);
-  $('#zoom').classList.toggle('hidden', !view.zoomBy);
   $('#btnUndo').onclick = () => {
     if (App.busy || !App.history.length) return;
     let s = App.history.pop();
