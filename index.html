@@ -107,6 +107,44 @@ h1,h2,h3{font-family:var(--font-d);text-wrap:balance;margin:0;line-height:1.1}
 @keyframes bounce{from{transform:rotateX(calc(var(--tilt) * -1)) translateY(0)}to{transform:rotateX(calc(var(--tilt) * -1)) translateY(-14%)}}
 .piece.sel .shadow{opacity:.6}
 .stage.flat{--tilt:0deg}
+
+/* ---------- flat 2D board (chess.com-like) ---------- */
+.stage.flat2d{--tilt:0deg;--bw:min(92vw,74vh,640px);padding:0;--sq-l:#eeeed2;--sq-d:#769656;margin-top:6px}
+.stage.flat2d .board3d{transform:none;border-radius:6px;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.stage.flat2d .board3d::before,.stage.flat2d .board3d::after{display:none}
+.stage.flat2d .squares{border-radius:6px;box-shadow:none}
+.stage.flat2d .pieces{transform:none}
+.stage.flat2d .piece .fig{transform:none;left:7%;width:86%;top:2%;bottom:auto;height:96%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.stage.flat2d .piece .shadow{display:none}
+.stage.flat2d .sqbtn .coord{font-size:calc(var(--bw)*.022);color:rgba(0,0,0,.55);left:3px;bottom:1px}
+.stage.flat2d .sqbtn.d .coord{color:rgba(255,255,255,.8)}
+.stage.flat2d .sqbtn.last{box-shadow:inset 0 0 0 100px rgba(255,255,51,.5)}
+.stage.flat2d .sqbtn.sel{box-shadow:inset 0 0 0 100px rgba(255,255,51,.8)}
+.stage.flat2d .sqbtn.check{box-shadow:inset 0 0 0 100px rgba(235,60,50,.75)}
+.stage.flat2d .sqbtn.move::after{background:rgba(0,0,0,.2);box-shadow:none;width:34%;height:34%}
+.stage.flat2d .sqbtn.cap::after{border-color:rgba(0,0,0,.22);box-shadow:none;inset:4%}
+.stage.flat2d .piece.sel .fig{animation:none;transform:scale(1.12)}
+body.fs .stage.flat2d{--bw:min(96vw,86vh)}
+/* ---------- kid profiles ---------- */
+.profbox{margin:0 0 16px;padding:12px 14px;border-radius:var(--radius);background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12)}
+#profOut:not(.hidden){display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:800}
+.kids{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.kid{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(0,0,0,.25);border:2px solid transparent;color:var(--paper);text-align:left}
+.kid .av{width:42px;height:42px;border-radius:50%;background:var(--gold);display:grid;place-items:center;font-size:24px;flex:none}
+.kid b{font-family:var(--font-d);font-size:18px;display:block;line-height:1.1}.kid small{font-size:12px;color:#d7cbbc;display:block}
+.kid.on{border-color:var(--green);background:rgba(51,196,111,.2)}.kid.on b::after{content:" ✓";color:var(--green)}
+.krow{display:flex;gap:8px;flex-wrap:wrap}
+.modal .mtext{font-size:18px;color:#f1e6d5;margin:8px 0 18px}
+.pinpad{display:grid;grid-template-columns:repeat(3,72px);gap:8px;justify-content:center;margin:12px 0}
+.pinpad button{height:58px;border-radius:14px;font:800 26px var(--font-d);background:rgba(255,255,255,.12);color:var(--paper)}
+.pinpad button:hover{background:rgba(255,255,255,.22)}
+.pindots{display:flex;gap:12px;justify-content:center;margin:6px 0}.pindots i{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid var(--gold)}.pindots i.f{background:var(--gold)}
+.pindots.bad{animation:shakeX .4s}
+@keyframes shakeX{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.form{display:grid;gap:10px;text-align:left}.form label{font-size:14px;font-weight:800;color:#e9dcc9}.form input{font:700 18px var(--font-b);padding:10px 14px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;width:100%}.form input:focus{outline:none;border-color:var(--gold)}
+.avpick{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.avpick button{width:44px;height:44px;border-radius:12px;font-size:24px;background:rgba(255,255,255,.12)}.avpick button.on{background:var(--gold)}
+.kidlist{display:grid;gap:8px;text-align:left}.kidlist div{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.25)}.kidlist b{flex:1;font-family:var(--font-d)}
+.status.ok{color:#8ff0b6}.status.err{color:#ff9a90}
 /* ---------- WebGL canvas ---------- */
 .stage canvas.gl{display:block;width:100% !important;height:100% !important;border-radius:14px;touch-action:none;cursor:pointer}
 .stage.gl3d{padding:0;width:100%;max-width:820px;height:min(72vh,calc(100% * .78),640px);aspect-ratio:1.25;position:relative;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,rgba(120,90,160,.35),rgba(0,0,0,0) 70%)}
@@ -339,6 +377,11 @@ body.fs .fsbar{display:flex}
       <h1>Ra trận nào, <em>chiến binh nhí!</em></h1>
       <p>Học cờ vua từng bước, rồi thách đấu bạn cùng lớp. Mỗi lần ăn quân, hai chiến binh rút kiếm đấu ngay trên bàn cờ!</p>
       <div class="host"><img src="data:image/jpeg;base64,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" alt="Ken – chủ trang"><div><span class="crown">👑 Chủ trang</span><b>Ken</b><small>"Thách đấu mình đi, ai thắng được nè?"</small></div></div>
+      <div class="profbox" id="profbox">
+        <div id="profOut"><span>👨‍👩‍👧 Lưu level & tiến độ của từng bé</span><button class="btn sm blue" id="btnParent">🔐 Bố mẹ đăng nhập</button></div>
+        <div id="profIn" class="hidden"><div class="kids" id="kids"></div><div class="krow"><button class="btn sm green" id="btnAddKid">➕ Thêm bé</button><button class="btn sm ghost" id="btnKids">⚙️ Quản lý</button><button class="btn sm ghost" id="btnParentOut">Đăng xuất</button></div></div>
+        <div class="status" id="profStatus"></div>
+      </div>
       <div class="tc"><label>⏱ Đồng hồ thi đấu:</label><div class="seg" id="segClock"><button data-tc="0" class="on">Không</button><button data-tc="3">3 phút</button><button data-tc="5">5 phút</button><button data-tc="10">10 phút</button><button data-tc="15">15 phút</button></div></div>
       <div class="who"><label for="myName">Tên của bé:</label><input id="myName" maxlength="14" placeholder="VD: Ken"></div>
       <div class="modes">
@@ -408,6 +451,7 @@ body.fs .fsbar{display:flex}
     <div class="boardwrap">
       <div class="banner" id="banner">Chiếu!</div>
       <div class="stage" id="stage"></div>
+      <div class="stage flat2d hidden" id="stage2d"></div>
       <div class="zoom" id="zoom" style="position:absolute"><button id="zoomIn" aria-label="Phóng to">+</button><button id="zoomOut" aria-label="Thu nhỏ">−</button><button id="btnFs" aria-label="Toàn màn hình">⛶</button></div>
       <div class="bubble" id="bubble"></div>
       <div class="fsbar"><div class="fsinfo" id="fsInfo"></div><button class="btn sm ghost" id="btnExitFs">✕ Thoát</button></div>
@@ -440,7 +484,7 @@ body.fs .fsbar{display:flex}
       <button class="toggle on" id="tgHints"><span>💡 Gợi ý nước đi</span><span class="sw"></span></button>
       <div class="seg" id="segFx"><span>⚔️ Ăn:</span><button data-fx="sword" class="on">Đấu kiếm</button><button data-fx="chase">Rượt đuổi</button><button data-fx="duel">So kiếm</button><button data-fx="off">Tắt</button></div>
       <div class="seg wrap" id="segSet"><span>♟ Quân:</span><button data-set="classic" class="on">Cổ điển</button><button data-set="royal">Vàng–Đỏ</button><button data-set="candy">Hồng–Xanh</button><button data-set="wood">Gỗ</button><button data-set="glass">Thuỷ tinh</button><button data-set="neon">Neon</button><button data-set="toy">Đồ chơi</button><button data-set="metal">Vàng–Bạc</button><button data-set="crystal">Pha lê</button></div>
-      <div class="seg" id="segView"><span>👁 Nhìn:</span><button data-view="2d">2D</button><button data-view="3d" class="on">3D</button><button data-view="vr">Ảo</button></div>
+      <div class="seg" id="segView"><span>👁 Nhìn:</span><button data-view="flat">Phẳng</button><button data-view="2d">Từ trên</button><button data-view="3d" class="on">3D</button><button data-view="vr">Ảo</button></div>
       <div class="controls">
         <button class="btn sm ghost" id="btnUndo">↩️ Đi lại</button>
         <button class="btn sm ghost" id="btnFlip">🔄 Xoay bàn</button>
@@ -455,7 +499,7 @@ body.fs .fsbar{display:flex}
 <div class="confetti" id="confetti"></div>
 
 <!-- end modal -->
-<div class="modal" id="modal"><div class="box"><h2 id="mTitle">Hết ván!</h2><p id="mText"></p><div class="row"><button class="btn green" id="mNew">🆕 Chơi lại</button><button class="btn ghost" id="mClose">Xem bàn cờ</button></div></div></div>
+<div class="modal" id="modal"><div class="box"><h2 id="mTitle">Hết ván!</h2><div id="mText" class="mtext"></div><div class="row"><button class="btn green" id="mNew">🆕 Chơi lại</button><button class="btn ghost" id="mClose">Xem bàn cờ</button></div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
@@ -1060,6 +1104,99 @@ const V3 = (() => {
   }
   return { buildBoard, duel3d, makePiece, setPieceSet, SETS, sword };
 })();
+// ===== Cloud (Supabase): parent account, kid profiles with PIN, saved progress & settings =====
+// The publishable key is safe to ship in the page; Row Level Security limits every request to the signed-in parent's rows.
+const Cloud = (() => {
+  const URL = 'https://fhyblgqnfvurjamymuvv.supabase.co';
+  const KEY = 'sb_publishable_Nrx7SIfICKxLYTo0KO4TTQ_S66OsJka';
+  const LIB = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  let sb = null, user = null, profiles = [], active = null, loading = null;
+  const listeners = [];
+  const emit = () => listeners.forEach(f => { try { f(); } catch (e) { } });
+
+  function script(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Không tải được thư viện đăng nhập')); document.head.appendChild(s); }); }
+  async function load() {
+    if (sb) return sb;
+    if (loading) return loading;
+    loading = (async () => {
+      if (typeof supabase === 'undefined') await script(LIB);
+      sb = supabase.createClient(URL, KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+      const { data } = await sb.auth.getSession(); user = data.session ? data.session.user : null;
+      sb.auth.onAuthStateChange((_ev, s) => { const u = s ? s.user : null; const changed = (u && u.id) !== (user && user.id); user = u; if (changed) { if (!user) { profiles = []; active = null; } emit(); } });
+      if (user) await refresh();
+      return sb;
+    })();
+    return loading;
+  }
+  async function sha(text) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); }
+  const pinHash = (id, pin) => sha(id + ':' + pin);
+
+  async function refresh() {
+    if (!user) { profiles = []; return; }
+    const { data, error } = await sb.from('profiles').select('*').order('created_at');
+    if (error) throw error;
+    profiles = data || [];
+    const savedId = store.get('activeProfile', null);
+    if (active) active = profiles.find(p => p.id === active.id) || null;
+    else if (savedId) active = profiles.find(p => p.id === savedId) || null;
+    emit();
+  }
+  const friendly = e => {
+    const m = (e && e.message) || String(e);
+    if (/Invalid login/i.test(m)) return 'Sai email hoặc mật khẩu.';
+    if (/already registered/i.test(m)) return 'Email này đã có tài khoản — hãy Đăng nhập.';
+    if (/Password should be/i.test(m)) return 'Mật khẩu cần ít nhất 6 ký tự.';
+    if (/Email not confirmed/i.test(m)) return 'Hãy mở email và bấm link xác nhận trước, rồi đăng nhập lại.';
+    if (/rate limit/i.test(m)) return 'Thử lại sau ít phút (gửi email quá nhanh).';
+    if (/relation .* does not exist|schema cache/i.test(m)) return 'Chưa tạo bảng trong Supabase — chạy file supabase/schema.sql trong SQL Editor.';
+    return m;
+  };
+
+  return {
+    load, refresh, friendly,
+    onChange(f) { listeners.push(f); },
+    get user() { return user; }, get profiles() { return profiles; }, get active() { return active; },
+    async signIn(email, password) { await load(); const { error } = await sb.auth.signInWithPassword({ email, password }); if (error) throw error; await refresh(); },
+    async signUp(email, password) { await load(); const { data, error } = await sb.auth.signUp({ email, password }); if (error) throw error; if (data.session) await refresh(); return !!data.session; /* false = needs email confirm */ },
+    async signOut() { await load(); await sb.auth.signOut(); user = null; profiles = []; active = null; store.set('activeProfile', null); emit(); },
+    async addProfile(name, avatar, pin) {
+      await load();
+      const { data, error } = await sb.from('profiles').insert({ name, avatar, data: { games: 0, wins: {}, losses: 0, draws: 0 } }).select().single();
+      if (error) throw error;
+      if (pin) { const h = await pinHash(data.id, pin); const r = await sb.from('profiles').update({ pin_hash: h }).eq('id', data.id); if (r.error) throw r.error; }
+      await refresh(); return data;
+    },
+    async removeProfile(id) { await load(); const { error } = await sb.from('profiles').delete().eq('id', id); if (error) throw error; if (active && active.id === id) { active = null; store.set('activeProfile', null); } await refresh(); },
+    async setPin(id, pin) { await load(); const h = pin ? await pinHash(id, pin) : null; const { error } = await sb.from('profiles').update({ pin_hash: h }).eq('id', id); if (error) throw error; await refresh(); },
+    async checkPin(p, pin) { if (!p.pin_hash) return true; return (await pinHash(p.id, pin)) === p.pin_hash; },
+    select(p) { active = p; store.set('activeProfile', p ? p.id : null); emit(); },
+    deselect() { active = null; store.set('activeProfile', null); emit(); },
+    // merge a patch into the active kid's data bag and save
+    async save(patch) {
+      if (!active || !sb) return;
+      const next = Object.assign({}, active.data || {}, patch);
+      active.data = next;
+      const i = profiles.findIndex(p => p.id === active.id); if (i >= 0) profiles[i].data = next;
+      const { error } = await sb.from('profiles').update({ data: next }).eq('id', active.id);
+      if (error) console.warn('save failed', error);
+      emit();
+    },
+    async recordGame(level, result) { // result: 'win' | 'lose' | 'draw'
+      if (!active) return;
+      const d = Object.assign({ games: 0, wins: {}, losses: 0, draws: 0, history: [] }, active.data || {});
+      d.games++; d.lastLevel = level;
+      if (result === 'win') d.wins[level] = (d.wins[level] || 0) + 1; else if (result === 'lose') d.losses++; else d.draws++;
+      d.history = (d.history || []).concat([{ t: Date.now(), level, result }]).slice(-50);
+      await this.save(d);
+    },
+    applying: false, _pend: {}, _t: null,
+    queueSetting(k, v) { if (this.applying || !active) return; this._pend[k] = v; clearTimeout(this._t); this._t = setTimeout(() => { const p = this._pend; this._pend = {}; this.saveSettings(p); }, 900); },
+    saveSettings(settings) { if (!active) return; const d = active.data || {}; return this.save({ settings: Object.assign({}, d.settings || {}, settings) }); },
+    totalWins(p) { const w = (p.data && p.data.wins) || {}; return Object.values(w).reduce((a, b) => a + b, 0); },
+    // highest level with at least 3 wins unlocks the next one (just a badge, never blocks play)
+    levelBadge(p) { const w = (p.data && p.data.wins) || {}; if ((w[3] || 0) >= 3) return '🌳 Cao thủ'; if ((w[2] || 0) >= 3) return '🌿 Giỏi'; if ((w[1] || 0) >= 3) return '🌱 Khá'; return '🐣 Mới'; }
+  };
+})();
 // ===== Helpers =====
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -1067,8 +1204,10 @@ const NAMES = { P: 'Tốt', N: 'Mã', B: 'Tượng', R: 'Xe', Q: 'Hậu', K: 'Vu
 const VALUE = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
 const store = {
   get(k, d) { try { const v = localStorage.getItem('cvcb_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('cvcb_' + k, JSON.stringify(v)); } catch (e) { } }
+  set(k, v) { try { localStorage.setItem('cvcb_' + k, JSON.stringify(v)); } catch (e) { } if (SYNC_KEYS.has(k) && typeof Cloud !== 'undefined') Cloud.queueSetting(k, v); }
 };
+const SYNC_KEYS = new Set(['pieceSet', 'fxMode', 'fxLast', 'viewMode', 'hints', 'sound', 'music', 'voice', 'clock']);
+const esc = x => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pieceSVG = (p, cls) => `<svg class="${cls || ''} ${p[0]}" viewBox="0 0 100 120"><use href="#p-${p[1]}"/></svg>`;
 
 // ===== Sound (Web Audio synth) =====
@@ -1175,6 +1314,10 @@ const Voice = (() => {
 // ===== Board view (CSS fallback; 3D version in V3) =====
 function buildBoard(stage, opts) {
   if (typeof V3 !== 'undefined' && V3) { stage.classList.add('gl3d'); return V3.buildBoard(stage, opts); }
+  return buildBoardCSS(stage, opts);
+}
+// Flat 2D board (also the no-WebGL fallback)
+function buildBoardCSS(stage, opts) {
   stage.innerHTML = '<div class="boardbox"><div class="board3d"><div class="squares"></div></div><div class="pieces"></div></div>';
   const sqs = stage.querySelector('.squares');
   for (let i = 0; i < 64; i++) { const b = document.createElement('button'); b.className = 'sqbtn'; b.type = 'button'; sqs.appendChild(b); }
@@ -1232,7 +1375,7 @@ const App = {
 };
 let view;
 
-function myName() { return ($('#myName').value.trim() || 'Bé'); }
+function myName() { if (typeof Cloud !== 'undefined' && Cloud.active) return Cloud.active.name; return ($('#myName').value.trim() || 'Bé'); }
 function show(id) { $$('.screen').forEach(s => s.classList.remove('on')); $('#scr' + id).classList.add('on'); window.scrollTo(0, 0); }
 
 // ===== Game flow =====
@@ -1320,17 +1463,18 @@ async function playMove(m, source) {
   // slide the piece
   const el = view.els.get(m.from[0] * 8 + m.from[1]);
   const victimEl = m.capture ? (m.ep ? view.els.get(m.from[0] * 8 + m.to[1]) : view.els.get(m.to[0] * 8 + m.to[1])) : null;
-  if (m.capture && App.fxMode === 'sword' && view.swordFight && el && victimEl) {
+  const fx = (App.fxMode !== 'off' && !view.swordFight) ? 'duel' : App.fxMode;
+  if (m.capture && fx === 'sword' && view.swordFight && el && victimEl) {
     Sound.swoosh();
     await view.swordFight(el, victimEl, m, { onDraw: () => Sound.draw(), onClang: () => { Sound.clang(); document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 300); }, onFall: () => Sound.thud() });
     flashBanner(m.ep ? 'Bắt qua đường!' : [m.capture[1] === 'Q' ? 'Hạ Hậu!' : 'Chém!', 'Trúng rồi!', 'Hạ gục!', 'Tuyệt chiêu!'][Math.floor(Math.random() * 4)]);
     victimEl.remove();
-  } else if (m.capture && App.fxMode === 'chase' && view.chase && el && victimEl) {
+  } else if (m.capture && fx === 'chase' && view.chase && el && victimEl) {
     Sound.swoosh();
     await view.chase(el, victimEl, m, s.board, () => Sound.move(), () => Sound.thud());
     flashBanner(['Bắt được rồi!', 'Hết đường chạy!', 'Tóm gọn!'][Math.floor(Math.random() * 3)]);
     victimEl.remove();
-  } else if (m.capture && App.fxMode === 'duel') {
+  } else if (m.capture && fx === 'duel') {
     Sound.swoosh();
     if (el) view.setPos(el, m.to[0], m.to[1]);
     await wait(250);
@@ -1375,6 +1519,7 @@ function endGame(st) {
     if (App.mode !== 'hot') iWon = st.winner === App.myColor;
     flashBanner('Chiếu hết!', true);
   } else { title = '🤝 Hoà!'; text = st.result === 'stalemate' ? 'Bên đi không còn nước nào hợp lệ mà Vua không bị chiếu — gọi là "pat", hai bên hoà.' : st.result === 'insufficient' ? 'Không còn đủ quân để chiếu hết. Hai bên hoà.' : 'Quá 50 nước không ăn quân, không đi Tốt — hoà theo luật.'; }
+  if (App.mode === 'ai' && typeof Cloud !== 'undefined' && Cloud.active) Cloud.recordGame(App.aiLevel, iWon === true ? 'win' : iWon === false ? 'lose' : 'draw');
   $('#mTitle').textContent = title; $('#mText').textContent = text;
   if (iWon === true || (App.mode === 'hot' && st.result === 'checkmate')) { Sound.win(); confetti(); } else if (iWon === false) Sound.lose(); else Sound.ding();
   $('#mNew').classList.toggle('hidden', App.mode === 'online' && App.myColor !== 'w');
@@ -1593,9 +1738,10 @@ function buildLessons() {
 function pickLevel() {
   return new Promise(res => {
     $('#mTitle').textContent = '🤖 Chơi với máy';
-    $('#mText').innerHTML = 'Chọn mức máy:';
+    const kd = (typeof Cloud !== 'undefined' && Cloud.active && Cloud.active.data) || null;
+    $('#mText').innerHTML = 'Chọn mức máy:' + (kd && kd.lastLevel ? `<br><small>Lần trước ${esc(Cloud.active.name)} chơi mức <b>${['', 'Dễ', 'Vừa', 'Khó'][kd.lastLevel]}</b>.</small>` : '');
     const row = $('#modal .row'); row.innerHTML = '';
-    [['Dễ 🌱', 1, 'green'], ['Vừa 🌿', 2, 'blue'], ['Khó 🌳', 3, 'red']].forEach(([l, v, c]) => { const b = document.createElement('button'); b.className = 'btn ' + c; b.textContent = l; b.onclick = () => { $('#modal').classList.remove('on'); restoreModalButtons(); res(v); }; row.appendChild(b); });
+    [['Dễ 🌱', 1, 'green'], ['Vừa 🌿', 2, 'blue'], ['Khó 🌳', 3, 'red']].forEach(([l, v, c]) => { const b = document.createElement('button'); b.className = 'btn ' + c; b.textContent = l + (kd && kd.wins && kd.wins[v] ? ` ★${kd.wins[v]}` : ''); b.onclick = () => { $('#modal').classList.remove('on'); restoreModalButtons(); res(v); }; row.appendChild(b); });
     const cancel = document.createElement('button'); cancel.className = 'btn ghost'; cancel.textContent = 'Huỷ'; cancel.onclick = () => { $('#modal').classList.remove('on'); restoreModalButtons(); res(null); }; row.appendChild(cancel);
     $('#modal').classList.add('on');
   });
@@ -1613,7 +1759,9 @@ function newGame() {
 // ===== Boot =====
 function boot() {
   buildLessons();
-  view = buildBoard($('#stage'), { onClick: onSquare });
+  const view3d = buildBoard($('#stage'), { onClick: onSquare });
+  const view2d = buildBoardCSS($('#stage2d'), { onClick: onSquare });
+  view = view3d;
   const hero = buildBoard($('#heroStage'), { autoOrbit: true });
   const demo = Chess.initial(); hero.sync(demo.board);
   // little demo animation on the hero board
@@ -1676,7 +1824,11 @@ function boot() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setFs(false); });
   const applyView = () => {
     $$('#segView button').forEach(b => b.classList.toggle('on', b.dataset.view === App.viewMode));
-    [view, hero].forEach(v => { if (v.setView) v.setView(App.viewMode); });
+    const flat = App.viewMode === 'flat', next = flat ? view2d : view3d;
+    if (next !== view) { const flipped = view.flipped; view = next; view.flipped = flipped; view.layout(); if (App.state) { App.sel = null; App.legal = []; view.sync(App.state.board); refresh(); } }
+    $('#stage').classList.toggle('hidden', flat); $('#stage2d').classList.toggle('hidden', !flat);
+    $('#zoom').classList.toggle('hidden', !view.zoomBy);
+    [view3d, hero].forEach(v => { if (v.setView) v.setView(flat ? '3d' : App.viewMode); });
     $('#stage').classList.toggle('flat', App.viewMode === '2d'); $('#heroStage').classList.toggle('flat', App.viewMode === '2d');
   };
   $$('#segView button').forEach(b => b.onclick = () => { App.viewMode = b.dataset.view; store.set('viewMode', App.viewMode); applyView(); });
@@ -1702,6 +1854,97 @@ function boot() {
   $('#btnJoin').onclick = () => { const code = $('#joinCode').value.trim().toUpperCase(); if (code.length !== 4) { setStatus($('#joinStatus'))('Nhập đủ 4 chữ nhé!', true); return; } Net.join(code, setStatus($('#joinStatus'))); };
   $('#joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnJoin').click(); });
   window.addEventListener('beforeunload', () => Net.cleanup());
+  // ===== kid profiles (Supabase) =====
+  const AVATARS = ['🦁', '🐯', '🐼', '🦊', '🐸', '🦄', '🐬', '🦖', '🐧', '🐱', '🐶', '🐨', '🚀', '⚽', '🎸', '👑'];
+  const modalBox = (title, html, buttons) => {
+    $('#mTitle').textContent = title; $('#mText').innerHTML = html;
+    const row = $('#modal .row'); row.innerHTML = '';
+    (buttons || []).forEach(([label, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + (cls || 'ghost'); b.textContent = label; b.onclick = fn; row.appendChild(b); });
+    $('#modal').classList.add('on');
+  };
+  const closeModal = () => { $('#modal').classList.remove('on'); restoreModalButtons(); };
+  const pstatus = (t, err) => { const el = $('#profStatus'); el.textContent = t || ''; el.className = 'status' + (err ? ' err' : ''); };
+  function renderProfiles() {
+    const u = Cloud.user;
+    $('#profOut').classList.toggle('hidden', !!u); $('#profIn').classList.toggle('hidden', !u);
+    if (!u) return;
+    const kids = $('#kids'); kids.innerHTML = '';
+    if (!Cloud.profiles.length) kids.innerHTML = '<span style="color:#d7cbbc">Chưa có hồ sơ bé nào — bấm <b>➕ Thêm bé</b>.</span>';
+    Cloud.profiles.forEach(p => {
+      const b = document.createElement('button'); b.className = 'kid' + (Cloud.active && Cloud.active.id === p.id ? ' on' : '');
+      const d = p.data || {};
+      b.innerHTML = `<span class="av">${esc(p.avatar || '🦁')}</span><span><b>${esc(p.name)}</b><small>${Cloud.levelBadge(p)} · 🏆 ${Cloud.totalWins(p)} thắng · ${d.games || 0} ván</small></span>`;
+      b.onclick = () => pickKid(p); kids.appendChild(b);
+    });
+    if (Cloud.active) $('#myName').value = Cloud.active.name;
+  }
+  let lastActive = null;
+  function applyProfileSettings() {
+    const st = Cloud.active && Cloud.active.data && Cloud.active.data.settings; if (!st) return;
+    Cloud.applying = true;
+    try {
+      if (st.pieceSet && V3 && V3.SETS[st.pieceSet]) { App.pieceSet = st.pieceSet; store.set('pieceSet', st.pieceSet); applySet(); }
+      if (st.fxMode) { App.fxMode = st.fxMode; store.set('fxMode', st.fxMode); if (st.fxLast) { App.fxLast = st.fxLast; store.set('fxLast', st.fxLast); } applyFx(); }
+      if (st.viewMode) { App.viewMode = st.viewMode; store.set('viewMode', st.viewMode); applyView(); }
+      if (typeof st.hints === 'boolean') { App.hints = st.hints; store.set('hints', st.hints); $('#tgHints').classList.toggle('on', st.hints); }
+      if (typeof st.clock === 'number') { App.clock = st.clock; store.set('clock', st.clock); applyClockSel(); }
+      if (typeof st.sound === 'boolean') { Sound.on = st.sound; setSoundBtn(); }
+      if (typeof st.music === 'boolean') { Music.on = st.music; setMusicBtn(); }
+      if (typeof st.voice === 'boolean') { Voice.on = st.voice; setVoiceBtn(); }
+    } finally { Cloud.applying = false; }
+  }
+  function pickKid(p) {
+    if (Cloud.active && Cloud.active.id === p.id) { Cloud.deselect(); return; }
+    if (!p.pin_hash) { Cloud.select(p); flashBanner(`Chào ${p.name}!`); return; }
+    let pin = '';
+    const draw = () => { $$('#pinDots i').forEach((d, i) => d.classList.toggle('f', i < pin.length)); };
+    modalBox(`${p.avatar} ${p.name}`, `<div>Nhập mã PIN của ${esc(p.name)}</div><div class="pindots" id="pinDots"><i></i><i></i><i></i><i></i></div><div class="pinpad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '⌫', 0, '✓'].map(k => `<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`, [['Huỷ', 'ghost', closeModal]]);
+    const tryPin = async () => { if (pin.length < 4) return; const ok = await Cloud.checkPin(p, pin); if (ok) { closeModal(); Cloud.select(p); Sound.ding(); flashBanner(`Chào ${p.name}! 👋`); } else { const d = $('#pinDots'); d.classList.add('bad'); Sound.lose(); setTimeout(() => { d.classList.remove('bad'); pin = ''; draw(); }, 450); } };
+    $$('.pinpad button').forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === '⌫') pin = pin.slice(0, -1); else if (k === '✓') { tryPin(); return; } else if (pin.length < 4) pin += k; draw(); if (pin.length === 4) tryPin(); });
+  }
+  function parentModal() {
+    modalBox('🔐 Bố mẹ đăng nhập', `<div class="form"><label>Email<input id="pEmail" type="email" autocomplete="username" placeholder="bome@gmail.com"></label><label>Mật khẩu (từ 6 ký tự)<input id="pPass" type="password" autocomplete="current-password"></label><div class="status" id="pMsg"></div></div>`,
+      [['Đăng nhập', 'green', () => go(false)], ['Tạo tài khoản mới', 'blue', () => go(true)], ['Huỷ', 'ghost', closeModal]]);
+    const msg = (t, cls) => { const m = $('#pMsg'); m.textContent = t; m.className = 'status ' + (cls || ''); };
+    async function go(create) {
+      const email = $('#pEmail').value.trim(), pass = $('#pPass').value;
+      if (!email || pass.length < 6) { msg('Nhập email và mật khẩu từ 6 ký tự.', 'err'); return; }
+      msg('Đang xử lý…');
+      try {
+        if (create) { const ok = await Cloud.signUp(email, pass); if (!ok) { msg('Đã gửi email xác nhận. Mở email, bấm link, rồi quay lại bấm Đăng nhập.', 'ok'); return; } }
+        else await Cloud.signIn(email, pass);
+        closeModal(); renderProfiles(); pstatus('Đã đăng nhập: ' + email);
+        if (!Cloud.profiles.length) addKidModal();
+      } catch (e) { msg(Cloud.friendly(e), 'err'); }
+    }
+    $('#pPass').addEventListener('keydown', e => { if (e.key === 'Enter') go(false); });
+  }
+  function addKidModal() {
+    let av = AVATARS[Math.floor(Math.random() * 6)];
+    modalBox('➕ Thêm bé', `<div class="form"><label>Tên bé<input id="kName" maxlength="14" placeholder="VD: Ken"></label><label>Hình đại diện</label><div class="avpick" id="avPick">${AVATARS.map(a => `<button type="button" data-a="${a}" class="${a === av ? 'on' : ''}">${a}</button>`).join('')}</div><label>Mã PIN 4 số (để trống nếu không cần)<input id="kPin" inputmode="numeric" maxlength="4" pattern="\\d*" placeholder="••••"></label><div class="status" id="kMsg"></div></div>`,
+      [['Lưu', 'green', save], ['Huỷ', 'ghost', closeModal]]);
+    $$('#avPick button').forEach(b => b.onclick = () => { av = b.dataset.a; $$('#avPick button').forEach(x => x.classList.toggle('on', x === b)); });
+    async function save() {
+      const name = $('#kName').value.trim(), pin = $('#kPin').value.trim();
+      const m = $('#kMsg');
+      if (!name) { m.textContent = 'Nhập tên bé nhé.'; m.className = 'status err'; return; }
+      if (pin && !/^\d{4}$/.test(pin)) { m.textContent = 'PIN phải đúng 4 số.'; m.className = 'status err'; return; }
+      m.textContent = 'Đang lưu…'; m.className = 'status';
+      try { const p = await Cloud.addProfile(name, av, pin); closeModal(); Cloud.select(p); flashBanner(`Chào ${name}! 👋`); } catch (e) { m.textContent = Cloud.friendly(e); m.className = 'status err'; }
+    }
+  }
+  function manageModal() {
+    const list = Cloud.profiles.map(p => `<div><span class="av" style="font-size:22px">${esc(p.avatar)}</span><b>${esc(p.name)}</b><button class="btn sm ghost" data-pin="${p.id}">🔑 PIN</button><button class="btn sm red" data-del="${p.id}">🗑</button></div>`).join('') || '<div>Chưa có bé nào.</div>';
+    modalBox('⚙️ Quản lý hồ sơ', `<div class="kidlist">${list}</div>`, [['Đóng', 'ghost', closeModal]]);
+    $$('#mText [data-del]').forEach(b => b.onclick = async () => { const p = Cloud.profiles.find(x => x.id === b.dataset.del); if (!confirm(`Xoá hồ sơ ${p.name}? Mất luôn thống kê.`)) return; try { await Cloud.removeProfile(p.id); manageModal(); } catch (e) { alert(Cloud.friendly(e)); } });
+    $$('#mText [data-pin]').forEach(b => b.onclick = async () => { const p = Cloud.profiles.find(x => x.id === b.dataset.pin); const pin = prompt(`PIN mới cho ${p.name} (4 số, để trống = bỏ PIN):`, ''); if (pin === null) return; if (pin && !/^\d{4}$/.test(pin)) { alert('PIN phải đúng 4 số.'); return; } try { await Cloud.setPin(p.id, pin); manageModal(); } catch (e) { alert(Cloud.friendly(e)); } });
+  }
+  $('#btnParent').onclick = () => { Sound.unlock(); parentModal(); };
+  $('#btnAddKid').onclick = addKidModal;
+  $('#btnKids').onclick = manageModal;
+  $('#btnParentOut').onclick = async () => { if (!confirm('Đăng xuất tài khoản bố mẹ trên máy này?')) return; await Cloud.signOut(); pstatus(''); };
+  Cloud.onChange(() => { renderProfiles(); const id = Cloud.active ? Cloud.active.id : null; if (id !== lastActive) { lastActive = id; if (id) applyProfileSettings(); } });
+  setTimeout(() => Cloud.load().then(renderProfiles).catch(e => pstatus(Cloud.friendly(e), true)), 400);
   // chat
   $('#emojis').innerHTML = EMOJIS.map(e => `<button type="button" data-e="${e}">${e}</button>`).join('');
   $$('#emojis button').forEach(b => b.onclick = () => sendChat(b.dataset.e));

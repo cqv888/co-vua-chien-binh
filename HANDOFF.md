@@ -48,3 +48,6 @@ Tính năng đã có:
 - Tab "📺 Xem video": thêm video YouTube bằng cách điền mảng `VIDEOS` trong `buildLessons()` (app.js), ví dụ `{ id: 'abc123XYZ', title: 'Bài 1' }`.
 - Push: máy này chưa có credential GitHub → upload qua github.com/cqv888/co-vua-chien-binh/upload/main (và /upload/main/src). Vercel tự deploy lại.
 - PWA (16/09): `manifest.json`, `sw.js`, thư mục `icons/` (tạo từ logo bằng `work/icons/icon.html`). Khi đổi `index.html` nhớ tăng `VERSION` trong `sw.js` để máy bé nhận bản mới. Đóng gói Android: dán link trang vào pwabuilder.com → tải .aab → Google Play Console.
+- Bàn cờ **Phẳng** (2D kiểu chess.com): `buildBoardCSS` trong `app.js` + CSS `.stage.flat2d`; góc nhìn "Phẳng" trong segView. Ăn quân ở 2D dùng màn So kiếm (popup) vì không có hoạt cảnh trên bàn.
+- **Supabase** (`src/cloud.js`): URL + publishable key nằm trong file (an toàn, RLS bảo vệ). Bảng `profiles` — tạo bằng `supabase/schema.sql` trong SQL Editor (chạy 1 lần). Bố mẹ đăng nhập email+mật khẩu (Supabase Auth); mỗi bé 1 hồ sơ + PIN (băm SHA-256 phía trình duyệt); `data` jsonb lưu games/wins theo level/lastLevel/settings/history. Cài đặt đồng bộ qua `store.set` → `Cloud.queueSetting`.
+- Nếu muốn bỏ bước xác nhận email khi tạo tài khoản: Supabase → Authentication → Providers → Email → tắt "Confirm email".

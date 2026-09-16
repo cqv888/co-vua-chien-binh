@@ -5,8 +5,10 @@ const NAMES = { P: 'Tốt', N: 'Mã', B: 'Tượng', R: 'Xe', Q: 'Hậu', K: 'Vu
 const VALUE = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
 const store = {
   get(k, d) { try { const v = localStorage.getItem('cvcb_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('cvcb_' + k, JSON.stringify(v)); } catch (e) { } }
+  set(k, v) { try { localStorage.setItem('cvcb_' + k, JSON.stringify(v)); } catch (e) { } if (SYNC_KEYS.has(k) && typeof Cloud !== 'undefined') Cloud.queueSetting(k, v); }
 };
+const SYNC_KEYS = new Set(['pieceSet', 'fxMode', 'fxLast', 'viewMode', 'hints', 'sound', 'music', 'voice', 'clock']);
+const esc = x => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pieceSVG = (p, cls) => `<svg class="${cls || ''} ${p[0]}" viewBox="0 0 100 120"><use href="#p-${p[1]}"/></svg>`;
 
 // ===== Sound (Web Audio synth) =====
@@ -113,6 +115,10 @@ const Voice = (() => {
 // ===== Board view (CSS fallback; 3D version in V3) =====
 function buildBoard(stage, opts) {
   if (typeof V3 !== 'undefined' && V3) { stage.classList.add('gl3d'); return V3.buildBoard(stage, opts); }
+  return buildBoardCSS(stage, opts);
+}
+// Flat 2D board (also the no-WebGL fallback)
+function buildBoardCSS(stage, opts) {
   stage.innerHTML = '<div class="boardbox"><div class="board3d"><div class="squares"></div></div><div class="pieces"></div></div>';
   const sqs = stage.querySelector('.squares');
   for (let i = 0; i < 64; i++) { const b = document.createElement('button'); b.className = 'sqbtn'; b.type = 'button'; sqs.appendChild(b); }
@@ -170,7 +176,7 @@ const App = {
 };
 let view;
 
-function myName() { return ($('#myName').value.trim() || 'Bé'); }
+function myName() { if (typeof Cloud !== 'undefined' && Cloud.active) return Cloud.active.name; return ($('#myName').value.trim() || 'Bé'); }
 function show(id) { $$('.screen').forEach(s => s.classList.remove('on')); $('#scr' + id).classList.add('on'); window.scrollTo(0, 0); }
 
 // ===== Game flow =====
@@ -258,17 +264,18 @@ async function playMove(m, source) {
   // slide the piece
   const el = view.els.get(m.from[0] * 8 + m.from[1]);
   const victimEl = m.capture ? (m.ep ? view.els.get(m.from[0] * 8 + m.to[1]) : view.els.get(m.to[0] * 8 + m.to[1])) : null;
-  if (m.capture && App.fxMode === 'sword' && view.swordFight && el && victimEl) {
+  const fx = (App.fxMode !== 'off' && !view.swordFight) ? 'duel' : App.fxMode;
+  if (m.capture && fx === 'sword' && view.swordFight && el && victimEl) {
     Sound.swoosh();
     await view.swordFight(el, victimEl, m, { onDraw: () => Sound.draw(), onClang: () => { Sound.clang(); document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 300); }, onFall: () => Sound.thud() });
     flashBanner(m.ep ? 'Bắt qua đường!' : [m.capture[1] === 'Q' ? 'Hạ Hậu!' : 'Chém!', 'Trúng rồi!', 'Hạ gục!', 'Tuyệt chiêu!'][Math.floor(Math.random() * 4)]);
     victimEl.remove();
-  } else if (m.capture && App.fxMode === 'chase' && view.chase && el && victimEl) {
+  } else if (m.capture && fx === 'chase' && view.chase && el && victimEl) {
     Sound.swoosh();
     await view.chase(el, victimEl, m, s.board, () => Sound.move(), () => Sound.thud());
     flashBanner(['Bắt được rồi!', 'Hết đường chạy!', 'Tóm gọn!'][Math.floor(Math.random() * 3)]);
     victimEl.remove();
-  } else if (m.capture && App.fxMode === 'duel') {
+  } else if (m.capture && fx === 'duel') {
     Sound.swoosh();
     if (el) view.setPos(el, m.to[0], m.to[1]);
     await wait(250);
@@ -313,6 +320,7 @@ function endGame(st) {
     if (App.mode !== 'hot') iWon = st.winner === App.myColor;
     flashBanner('Chiếu hết!', true);
   } else { title = '🤝 Hoà!'; text = st.result === 'stalemate' ? 'Bên đi không còn nước nào hợp lệ mà Vua không bị chiếu — gọi là "pat", hai bên hoà.' : st.result === 'insufficient' ? 'Không còn đủ quân để chiếu hết. Hai bên hoà.' : 'Quá 50 nước không ăn quân, không đi Tốt — hoà theo luật.'; }
+  if (App.mode === 'ai' && typeof Cloud !== 'undefined' && Cloud.active) Cloud.recordGame(App.aiLevel, iWon === true ? 'win' : iWon === false ? 'lose' : 'draw');
   $('#mTitle').textContent = title; $('#mText').textContent = text;
   if (iWon === true || (App.mode === 'hot' && st.result === 'checkmate')) { Sound.win(); confetti(); } else if (iWon === false) Sound.lose(); else Sound.ding();
   $('#mNew').classList.toggle('hidden', App.mode === 'online' && App.myColor !== 'w');
@@ -531,9 +539,10 @@ function buildLessons() {
 function pickLevel() {
   return new Promise(res => {
     $('#mTitle').textContent = '🤖 Chơi với máy';
-    $('#mText').innerHTML = 'Chọn mức máy:';
+    const kd = (typeof Cloud !== 'undefined' && Cloud.active && Cloud.active.data) || null;
+    $('#mText').innerHTML = 'Chọn mức máy:' + (kd && kd.lastLevel ? `<br><small>Lần trước ${esc(Cloud.active.name)} chơi mức <b>${['', 'Dễ', 'Vừa', 'Khó'][kd.lastLevel]}</b>.</small>` : '');
     const row = $('#modal .row'); row.innerHTML = '';
-    [['Dễ 🌱', 1, 'green'], ['Vừa 🌿', 2, 'blue'], ['Khó 🌳', 3, 'red']].forEach(([l, v, c]) => { const b = document.createElement('button'); b.className = 'btn ' + c; b.textContent = l; b.onclick = () => { $('#modal').classList.remove('on'); restoreModalButtons(); res(v); }; row.appendChild(b); });
+    [['Dễ 🌱', 1, 'green'], ['Vừa 🌿', 2, 'blue'], ['Khó 🌳', 3, 'red']].forEach(([l, v, c]) => { const b = document.createElement('button'); b.className = 'btn ' + c; b.textContent = l + (kd && kd.wins && kd.wins[v] ? ` ★${kd.wins[v]}` : ''); b.onclick = () => { $('#modal').classList.remove('on'); restoreModalButtons(); res(v); }; row.appendChild(b); });
     const cancel = document.createElement('button'); cancel.className = 'btn ghost'; cancel.textContent = 'Huỷ'; cancel.onclick = () => { $('#modal').classList.remove('on'); restoreModalButtons(); res(null); }; row.appendChild(cancel);
     $('#modal').classList.add('on');
   });
@@ -551,7 +560,9 @@ function newGame() {
 // ===== Boot =====
 function boot() {
   buildLessons();
-  view = buildBoard($('#stage'), { onClick: onSquare });
+  const view3d = buildBoard($('#stage'), { onClick: onSquare });
+  const view2d = buildBoardCSS($('#stage2d'), { onClick: onSquare });
+  view = view3d;
   const hero = buildBoard($('#heroStage'), { autoOrbit: true });
   const demo = Chess.initial(); hero.sync(demo.board);
   // little demo animation on the hero board
@@ -614,7 +625,11 @@ function boot() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setFs(false); });
   const applyView = () => {
     $$('#segView button').forEach(b => b.classList.toggle('on', b.dataset.view === App.viewMode));
-    [view, hero].forEach(v => { if (v.setView) v.setView(App.viewMode); });
+    const flat = App.viewMode === 'flat', next = flat ? view2d : view3d;
+    if (next !== view) { const flipped = view.flipped; view = next; view.flipped = flipped; view.layout(); if (App.state) { App.sel = null; App.legal = []; view.sync(App.state.board); refresh(); } }
+    $('#stage').classList.toggle('hidden', flat); $('#stage2d').classList.toggle('hidden', !flat);
+    $('#zoom').classList.toggle('hidden', !view.zoomBy);
+    [view3d, hero].forEach(v => { if (v.setView) v.setView(flat ? '3d' : App.viewMode); });
     $('#stage').classList.toggle('flat', App.viewMode === '2d'); $('#heroStage').classList.toggle('flat', App.viewMode === '2d');
   };
   $$('#segView button').forEach(b => b.onclick = () => { App.viewMode = b.dataset.view; store.set('viewMode', App.viewMode); applyView(); });
@@ -640,6 +655,97 @@ function boot() {
   $('#btnJoin').onclick = () => { const code = $('#joinCode').value.trim().toUpperCase(); if (code.length !== 4) { setStatus($('#joinStatus'))('Nhập đủ 4 chữ nhé!', true); return; } Net.join(code, setStatus($('#joinStatus'))); };
   $('#joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnJoin').click(); });
   window.addEventListener('beforeunload', () => Net.cleanup());
+  // ===== kid profiles (Supabase) =====
+  const AVATARS = ['🦁', '🐯', '🐼', '🦊', '🐸', '🦄', '🐬', '🦖', '🐧', '🐱', '🐶', '🐨', '🚀', '⚽', '🎸', '👑'];
+  const modalBox = (title, html, buttons) => {
+    $('#mTitle').textContent = title; $('#mText').innerHTML = html;
+    const row = $('#modal .row'); row.innerHTML = '';
+    (buttons || []).forEach(([label, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + (cls || 'ghost'); b.textContent = label; b.onclick = fn; row.appendChild(b); });
+    $('#modal').classList.add('on');
+  };
+  const closeModal = () => { $('#modal').classList.remove('on'); restoreModalButtons(); };
+  const pstatus = (t, err) => { const el = $('#profStatus'); el.textContent = t || ''; el.className = 'status' + (err ? ' err' : ''); };
+  function renderProfiles() {
+    const u = Cloud.user;
+    $('#profOut').classList.toggle('hidden', !!u); $('#profIn').classList.toggle('hidden', !u);
+    if (!u) return;
+    const kids = $('#kids'); kids.innerHTML = '';
+    if (!Cloud.profiles.length) kids.innerHTML = '<span style="color:#d7cbbc">Chưa có hồ sơ bé nào — bấm <b>➕ Thêm bé</b>.</span>';
+    Cloud.profiles.forEach(p => {
+      const b = document.createElement('button'); b.className = 'kid' + (Cloud.active && Cloud.active.id === p.id ? ' on' : '');
+      const d = p.data || {};
+      b.innerHTML = `<span class="av">${esc(p.avatar || '🦁')}</span><span><b>${esc(p.name)}</b><small>${Cloud.levelBadge(p)} · 🏆 ${Cloud.totalWins(p)} thắng · ${d.games || 0} ván</small></span>`;
+      b.onclick = () => pickKid(p); kids.appendChild(b);
+    });
+    if (Cloud.active) $('#myName').value = Cloud.active.name;
+  }
+  let lastActive = null;
+  function applyProfileSettings() {
+    const st = Cloud.active && Cloud.active.data && Cloud.active.data.settings; if (!st) return;
+    Cloud.applying = true;
+    try {
+      if (st.pieceSet && V3 && V3.SETS[st.pieceSet]) { App.pieceSet = st.pieceSet; store.set('pieceSet', st.pieceSet); applySet(); }
+      if (st.fxMode) { App.fxMode = st.fxMode; store.set('fxMode', st.fxMode); if (st.fxLast) { App.fxLast = st.fxLast; store.set('fxLast', st.fxLast); } applyFx(); }
+      if (st.viewMode) { App.viewMode = st.viewMode; store.set('viewMode', st.viewMode); applyView(); }
+      if (typeof st.hints === 'boolean') { App.hints = st.hints; store.set('hints', st.hints); $('#tgHints').classList.toggle('on', st.hints); }
+      if (typeof st.clock === 'number') { App.clock = st.clock; store.set('clock', st.clock); applyClockSel(); }
+      if (typeof st.sound === 'boolean') { Sound.on = st.sound; setSoundBtn(); }
+      if (typeof st.music === 'boolean') { Music.on = st.music; setMusicBtn(); }
+      if (typeof st.voice === 'boolean') { Voice.on = st.voice; setVoiceBtn(); }
+    } finally { Cloud.applying = false; }
+  }
+  function pickKid(p) {
+    if (Cloud.active && Cloud.active.id === p.id) { Cloud.deselect(); return; }
+    if (!p.pin_hash) { Cloud.select(p); flashBanner(`Chào ${p.name}!`); return; }
+    let pin = '';
+    const draw = () => { $$('#pinDots i').forEach((d, i) => d.classList.toggle('f', i < pin.length)); };
+    modalBox(`${p.avatar} ${p.name}`, `<div>Nhập mã PIN của ${esc(p.name)}</div><div class="pindots" id="pinDots"><i></i><i></i><i></i><i></i></div><div class="pinpad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '⌫', 0, '✓'].map(k => `<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`, [['Huỷ', 'ghost', closeModal]]);
+    const tryPin = async () => { if (pin.length < 4) return; const ok = await Cloud.checkPin(p, pin); if (ok) { closeModal(); Cloud.select(p); Sound.ding(); flashBanner(`Chào ${p.name}! 👋`); } else { const d = $('#pinDots'); d.classList.add('bad'); Sound.lose(); setTimeout(() => { d.classList.remove('bad'); pin = ''; draw(); }, 450); } };
+    $$('.pinpad button').forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === '⌫') pin = pin.slice(0, -1); else if (k === '✓') { tryPin(); return; } else if (pin.length < 4) pin += k; draw(); if (pin.length === 4) tryPin(); });
+  }
+  function parentModal() {
+    modalBox('🔐 Bố mẹ đăng nhập', `<div class="form"><label>Email<input id="pEmail" type="email" autocomplete="username" placeholder="bome@gmail.com"></label><label>Mật khẩu (từ 6 ký tự)<input id="pPass" type="password" autocomplete="current-password"></label><div class="status" id="pMsg"></div></div>`,
+      [['Đăng nhập', 'green', () => go(false)], ['Tạo tài khoản mới', 'blue', () => go(true)], ['Huỷ', 'ghost', closeModal]]);
+    const msg = (t, cls) => { const m = $('#pMsg'); m.textContent = t; m.className = 'status ' + (cls || ''); };
+    async function go(create) {
+      const email = $('#pEmail').value.trim(), pass = $('#pPass').value;
+      if (!email || pass.length < 6) { msg('Nhập email và mật khẩu từ 6 ký tự.', 'err'); return; }
+      msg('Đang xử lý…');
+      try {
+        if (create) { const ok = await Cloud.signUp(email, pass); if (!ok) { msg('Đã gửi email xác nhận. Mở email, bấm link, rồi quay lại bấm Đăng nhập.', 'ok'); return; } }
+        else await Cloud.signIn(email, pass);
+        closeModal(); renderProfiles(); pstatus('Đã đăng nhập: ' + email);
+        if (!Cloud.profiles.length) addKidModal();
+      } catch (e) { msg(Cloud.friendly(e), 'err'); }
+    }
+    $('#pPass').addEventListener('keydown', e => { if (e.key === 'Enter') go(false); });
+  }
+  function addKidModal() {
+    let av = AVATARS[Math.floor(Math.random() * 6)];
+    modalBox('➕ Thêm bé', `<div class="form"><label>Tên bé<input id="kName" maxlength="14" placeholder="VD: Ken"></label><label>Hình đại diện</label><div class="avpick" id="avPick">${AVATARS.map(a => `<button type="button" data-a="${a}" class="${a === av ? 'on' : ''}">${a}</button>`).join('')}</div><label>Mã PIN 4 số (để trống nếu không cần)<input id="kPin" inputmode="numeric" maxlength="4" pattern="\\d*" placeholder="••••"></label><div class="status" id="kMsg"></div></div>`,
+      [['Lưu', 'green', save], ['Huỷ', 'ghost', closeModal]]);
+    $$('#avPick button').forEach(b => b.onclick = () => { av = b.dataset.a; $$('#avPick button').forEach(x => x.classList.toggle('on', x === b)); });
+    async function save() {
+      const name = $('#kName').value.trim(), pin = $('#kPin').value.trim();
+      const m = $('#kMsg');
+      if (!name) { m.textContent = 'Nhập tên bé nhé.'; m.className = 'status err'; return; }
+      if (pin && !/^\d{4}$/.test(pin)) { m.textContent = 'PIN phải đúng 4 số.'; m.className = 'status err'; return; }
+      m.textContent = 'Đang lưu…'; m.className = 'status';
+      try { const p = await Cloud.addProfile(name, av, pin); closeModal(); Cloud.select(p); flashBanner(`Chào ${name}! 👋`); } catch (e) { m.textContent = Cloud.friendly(e); m.className = 'status err'; }
+    }
+  }
+  function manageModal() {
+    const list = Cloud.profiles.map(p => `<div><span class="av" style="font-size:22px">${esc(p.avatar)}</span><b>${esc(p.name)}</b><button class="btn sm ghost" data-pin="${p.id}">🔑 PIN</button><button class="btn sm red" data-del="${p.id}">🗑</button></div>`).join('') || '<div>Chưa có bé nào.</div>';
+    modalBox('⚙️ Quản lý hồ sơ', `<div class="kidlist">${list}</div>`, [['Đóng', 'ghost', closeModal]]);
+    $$('#mText [data-del]').forEach(b => b.onclick = async () => { const p = Cloud.profiles.find(x => x.id === b.dataset.del); if (!confirm(`Xoá hồ sơ ${p.name}? Mất luôn thống kê.`)) return; try { await Cloud.removeProfile(p.id); manageModal(); } catch (e) { alert(Cloud.friendly(e)); } });
+    $$('#mText [data-pin]').forEach(b => b.onclick = async () => { const p = Cloud.profiles.find(x => x.id === b.dataset.pin); const pin = prompt(`PIN mới cho ${p.name} (4 số, để trống = bỏ PIN):`, ''); if (pin === null) return; if (pin && !/^\d{4}$/.test(pin)) { alert('PIN phải đúng 4 số.'); return; } try { await Cloud.setPin(p.id, pin); manageModal(); } catch (e) { alert(Cloud.friendly(e)); } });
+  }
+  $('#btnParent').onclick = () => { Sound.unlock(); parentModal(); };
+  $('#btnAddKid').onclick = addKidModal;
+  $('#btnKids').onclick = manageModal;
+  $('#btnParentOut').onclick = async () => { if (!confirm('Đăng xuất tài khoản bố mẹ trên máy này?')) return; await Cloud.signOut(); pstatus(''); };
+  Cloud.onChange(() => { renderProfiles(); const id = Cloud.active ? Cloud.active.id : null; if (id !== lastActive) { lastActive = id; if (id) applyProfileSettings(); } });
+  setTimeout(() => Cloud.load().then(renderProfiles).catch(e => pstatus(Cloud.friendly(e), true)), 400);
   // chat
   $('#emojis').innerHTML = EMOJIS.map(e => `<button type="button" data-e="${e}">${e}</button>`).join('');
   $$('#emojis button').forEach(b => b.onclick = () => sendChat(b.dataset.e));
