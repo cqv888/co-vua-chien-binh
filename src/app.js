@@ -499,7 +499,7 @@ function buildLessons() {
       <li><b>🎵 Nhạc</b> nền nhẹ nhàng và <b>🗣️ Đọc nước</b> (máy đọc to "Ngựa đi bê 2", "Chiếu!") — bật/tắt riêng từng cái bằng nút trên cùng. Nút <b>🔊 Tiếng</b> là tiếng động khi đi quân, chém, thắng thua.</li>
       <li><b>♟ Đổi bộ quân:</b> 9 kiểu — Cổ điển, Vàng–Đỏ, Hồng–Xanh, Gỗ, Thuỷ tinh, Neon phát sáng, Đồ chơi (mập tròn), Vàng–Bạc kim loại, Pha lê (khối cạnh). Đổi ngay trong ván, không ảnh hưởng luật chơi.</li>
       <li><b>⛶ Toàn màn hình:</b> nút ở góc bàn cờ, để xem bàn cờ rõ nhất. Bấm ✕ hoặc phím Esc để thoát.</li>
-      <li><b>👁 Góc nhìn:</b> <b>2D</b> nhìn từ trên xuống (dễ thấy nhất), <b>3D</b> nhìn nghiêng, <b>Ảo</b> như đang ngồi trước bàn cờ thật. Kéo ngang trên bàn cờ để xoay.</li>
+      <li><b>👁 Góc nhìn:</b> <b>2D</b> nhìn từ trên xuống (dễ thấy nhất), <b>3D</b> nhìn nghiêng, <b>Ảo</b> như đang ngồi trước bàn cờ thật. Kéo <b>ngang</b> để xoay vòng, kéo <b>dọc</b> để ngẩng/cúi máy quay; véo 2 ngón hoặc cuộn để phóng to.</li>
       <li><b>Mũi tên mờ</b> khi chọn quân chỉ hướng quân có thể đi tới.</li>
       <li><b>↩️ Đi lại:</b> lùi một nước (chỉ khi chơi với máy hoặc 2 bạn cùng máy).</li>
       <li><b>💬 Trò chuyện:</b> khi đấu online, hai bạn nhắn tin hoặc gửi icon cho nhau — tin nhắn hiện thành bong bóng ngay trên bàn cờ.</li>
@@ -507,7 +507,24 @@ function buildLessons() {
       <li><b>⏱ Đồng hồ thi đấu:</b> chọn ở trang chính (3/5/10/15 phút mỗi bên). Đồng hồ chạy từ nước đi đầu tiên; hết giờ là thua như thi đấu thật. Nhấn <b>+ / −</b> hoặc cuộn chuột / véo 2 ngón để phóng to thu nhỏ bàn cờ.</li>
       <li><b>🤖 Chơi với máy:</b> có 3 mức. "Dễ" máy đi khá ngẫu nhiên, hợp lớp 1. "Vừa" và "Khó" để bạn lớp 5 luyện.</li>
     </ul>`;
-  $('#l1').innerHTML = l1; $('#l5').innerHTML = l5; $('#how').innerHTML = how;
+  // Video tab. VIDEOS: add YouTube video IDs here (the part after v= in the link), e.g. { id: 'dQw4w9WgXcQ', title: 'Bài 1: Cách đi Tốt' }.
+  // Empty list -> only the search links show. Videos load with youtube-nocookie and only when the tab is opened.
+  const VIDEOS = [];
+  const yts = q => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+  const video = `
+    <h2>📺 Xem video học cờ</h2>
+    <p class="big">Bấm để mở YouTube với các bài tìm sẵn. Bố mẹ xem cùng và chọn kênh bé thích, rồi thêm mã video vào trang (xem HANDOFF.md).</p>
+    <div class="links">
+      <a target="_blank" rel="noopener" href="${yts('dạy cờ vua cho trẻ em cơ bản')}">🌟 Cờ vua cho bé mới bắt đầu</a>
+      <a target="_blank" rel="noopener" href="${yts('luật cờ vua cách đi các quân')}">♟ Cách đi từng quân</a>
+      <a target="_blank" rel="noopener" href="${yts('chiếu hết cơ bản cờ vua hậu xe')}">👑 Chiếu hết cơ bản</a>
+      <a target="_blank" rel="noopener" href="${yts('khai cuộc cờ vua cho người mới')}">🚀 Khai cuộc</a>
+      <a target="_blank" rel="noopener" href="${yts('chiến thuật cờ vua đôi tấn công ghim xiên')}">🧠 Chiến thuật lớp 5</a>
+      <a target="_blank" rel="noopener" href="${yts('cờ vua trẻ em vui nhộn hoạt hình')}">🎈 Cờ vua vui nhộn</a>
+    </div>
+    ${VIDEOS.length ? '<h2>🎬 Video bố mẹ đã chọn</h2><div class="vids">' + VIDEOS.map(v => `<div class="vid"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${v.id}" title="${v.title || ''}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><p>${v.title || ''}</p></div>`).join('') + '</div>' : ''}
+    <p style="color:#e9dcc9">Mẹo: bật <b>🗣️ Đọc nước</b> và chơi lại thế cờ vừa xem trong video ở chế độ <b>2 bạn cùng máy</b>.</p>`;
+  $('#l1').innerHTML = l1; $('#l5').innerHTML = l5; $('#video').innerHTML = video; $('#how').innerHTML = how;
 }
 
 // ===== AI level picker (inline in modal) =====
@@ -628,4 +645,21 @@ function boot() {
   $$('#emojis button').forEach(b => b.onclick = () => sendChat(b.dataset.e));
   $('#chatForm').addEventListener('submit', e => { e.preventDefault(); sendChat($('#chatIn').value); $('#chatIn').value = ''; });
 }
+// ===== PWA: install prompt + service worker =====
+(function pwa() {
+  const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; const b = $('#btnInstall'); if (b && !isStandalone()) b.classList.remove('hidden'); });
+  window.addEventListener('appinstalled', () => { const b = $('#btnInstall'); if (b) b.classList.add('hidden'); const t = $('#installTip'); if (t) t.classList.remove('on'); });
+  document.addEventListener('DOMContentLoaded', () => {
+    const b = $('#btnInstall');
+    if (b) b.onclick = async () => { if (!deferred) return; deferred.prompt(); try { await deferred.userChoice; } catch (e) { } deferred = null; b.classList.add('hidden'); };
+    // iOS has no install prompt: show a one-time hint in Safari
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    if (ios && !isStandalone() && !store.get('iosTipSeen', false)) { const t = $('#installTip'); if (t) { t.classList.add('on'); t.onclick = () => { t.classList.remove('on'); store.set('iosTipSeen', true); }; } }
+  });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { }); });
+  }
+})();
 document.addEventListener('DOMContentLoaded', boot);

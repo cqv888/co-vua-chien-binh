@@ -1,0 +1,18 @@
+{
+  "name": "Cờ Vua Chiến Binh",
+  "short_name": "Cờ Vua CB",
+  "description": "Học và chơi cờ vua cho bé: bàn cờ 3D, đấu kiếm, chơi với máy, 2 bạn cùng máy, đấu online.",
+  "lang": "vi",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#2a1f3d",
+  "theme_color": "#2a1f3d",
+  "categories": ["games", "education", "kids"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

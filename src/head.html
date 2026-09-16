@@ -4,7 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Cờ Vua Chiến Binh</title>
-<link rel="icon" href="__KEN__">
+<meta name="theme-color" content="#2a1f3d">
+<meta name="description" content="Học và chơi cờ vua cho bé: bàn cờ 3D, đấu kiếm, chơi với máy, 2 bạn cùng máy, đấu online.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cờ Vua CB">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700;900&display=swap">
 <style>
@@ -121,8 +129,17 @@ h1,h2,h3{font-family:var(--font-d);text-wrap:balance;margin:0;line-height:1.1}
 .seg span{flex:none;align-self:center;font-weight:700;font-size:14px;padding:0 8px}
 .seg button{flex:1;font-family:var(--font-d);font-weight:800;font-size:14px;padding:7px 4px;border-radius:9px;color:var(--paper);background:transparent}
 .seg button.on{background:var(--gold);color:#2a1a05}
+.vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin:10px 0 18px}
+.vid{background:rgba(255,255,255,.07);border-radius:16px;overflow:hidden;border:2px solid rgba(255,255,255,.1)}
+.vid iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#000}
+.vid p{margin:0;padding:10px 12px;font-weight:700}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px}
+.links a{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.1);color:var(--paper);text-decoration:none;font-weight:800;font-family:var(--font-d)}
+.links a:hover{background:rgba(255,255,255,.2)}
 .seg.wrap{flex-wrap:wrap}.seg.wrap button{flex:1 1 28%;min-width:80px}
 .iconbtn.off{opacity:.55;text-decoration:line-through}
+.iconbtn.install{background:var(--green);color:#06301a}.iconbtn.install:hover{background:#4fd98a}
+.installtip{margin:10px auto 0;max-width:1100px;padding:10px 14px;border-radius:12px;background:rgba(51,196,111,.15);border:1px solid rgba(51,196,111,.4);font-size:14px;display:none}.installtip.on{display:block}.installtip b{color:#8ff0b6}
 /* ---------- game layout ---------- */
 .game{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
 .side{display:flex;flex-direction:column;gap:12px}
@@ -308,9 +325,12 @@ body.fs .fsbar{display:flex}
     <button class="iconbtn" id="btnMusic" aria-pressed="true" title="Nhạc nền">🎵 <span class="lbl">Nhạc</span></button>
     <button class="iconbtn" id="btnVoice" aria-pressed="true" title="Đọc to nước đi">🗣️ <span class="lbl">Đọc nước</span></button>
     <button class="iconbtn" id="btnAnim" aria-pressed="true" title="Bật/tắt hoạt cảnh ăn quân">🎬 <span class="lbl">Hoạt cảnh</span></button>
+    <button class="iconbtn install hidden" id="btnInstall" title="Cài như ứng dụng">📲 <span class="lbl">Cài app</span></button>
     <button class="iconbtn" id="btnLearn">📖 <span class="lbl">Học chơi</span></button>
   </div>
 </header>
+
+<div class="installtip" id="installTip">📲 <b>Cài lên màn hình chính (iPhone/iPad):</b> bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên) → <b>Thêm vào MH chính</b>. Sau đó mở như một ứng dụng, toàn màn hình.</div>
 
 <!-- ================= HOME ================= -->
 <section class="screen on" id="scrHome">
@@ -338,10 +358,12 @@ body.fs .fsbar{display:flex}
   <div class="tabs">
     <button class="tab on" data-lesson="l1">🌟 Lớp 1 – Bắt đầu</button>
     <button class="tab" data-lesson="l5">🏆 Lớp 5 – Nâng cao</button>
+    <button class="tab" data-lesson="video">📺 Xem video</button>
     <button class="tab" data-lesson="how">🖱️ Cách dùng trang này</button>
   </div>
   <div class="lesson on" id="l1"></div>
   <div class="lesson" id="l5"></div>
+  <div class="lesson" id="video"></div>
   <div class="lesson" id="how"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
     <button class="btn green" id="learnPlayAI">🤖 Thử chơi với máy ngay</button>

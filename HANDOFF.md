@@ -39,3 +39,12 @@ Tính năng đã có:
 - Three.js/PeerJS tải từ cdnjs (có fallback unpkg cho PeerJS). Nếu muốn offline hoàn toàn, tải 2 file `three.min.js` và `peerjs.min.js` về đặt cạnh `index.html` và đổi `src` trong `head.html`.
 - Mã phòng online dùng PeerJS cloud server miễn phí (0.peerjs.com); 2 máy cần cùng mở được WebRTC (mạng trường có thể chặn).
 - Đã test headless (Playwright + swiftshader): engine perft đúng, render 3D, animation rượt đuổi, đổi bộ quân, chat, đồng hồ.
+
+## 5. Cập nhật 16/09/2026
+- 9 bộ quân (thêm Thuỷ tinh, Neon, Đồ chơi, Vàng–Bạc, Pha lê) — `SETS` trong `view3d.js`.
+- Hiệu ứng ăn quân mặc định "Đấu kiếm" ngay trên bàn (`view.swordFight`), nút 🎬 bật/tắt nhanh.
+- Nhạc nền (`Music`), đọc nước đi tiếng Việt (`Voice`) trong `app.js`.
+- Kéo dọc trên bàn cờ để ngẩng/cúi camera (mọi góc nhìn, kể cả "Ảo").
+- Tab "📺 Xem video": thêm video YouTube bằng cách điền mảng `VIDEOS` trong `buildLessons()` (app.js), ví dụ `{ id: 'abc123XYZ', title: 'Bài 1' }`.
+- Push: máy này chưa có credential GitHub → upload qua github.com/cqv888/co-vua-chien-binh/upload/main (và /upload/main/src). Vercel tự deploy lại.
+- PWA (16/09): `manifest.json`, `sw.js`, thư mục `icons/` (tạo từ logo bằng `work/icons/icon.html`). Khi đổi `index.html` nhớ tăng `VERSION` trong `sw.js` để máy bé nhận bản mới. Đóng gói Android: dán link trang vào pwabuilder.com → tải .aab → Google Play Console.
