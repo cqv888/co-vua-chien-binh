@@ -54,3 +54,4 @@ Tính năng đã có:
 - Nút nhanh ở góc bàn cờ (hiện cả khi toàn màn hình): 🟩/⬛/🎲/👁 đổi góc nhìn, 🎬/⏩ hoạt cảnh, ♟ đổi bộ quân, + − ⛶.
 - Tab "📚 Sách cho bé": sách lật trang tự viết (16 trang) trong `buildBook()` (app.js) — thêm/sửa trang trong mảng `PAGES`. Có nút đọc to, vuốt/phím mũi tên, nhớ trang đang đọc; đọc hết được ⭐ lưu vào hồ sơ (`bookDone`). Link sách gốc FlipHTML5 chỉ mở tab ngoài (không sao chép nội dung).
 - Bảng `profiles` đã tạo trên Supabase ngày 16/09/2026 (chạy schema.sql).
+- Tab "🔔 Rung chuông vàng" (22/09): `src/quiz.js` sinh từ PDF bộ ôn tập của Na bằng `src/mkquiz.py` (đọc `rcv_raw.txt` do pypdf trích từ PDF — PDF không đưa vào repo). 491/505 câu parse được. Trắc nghiệm 4 đáp án: đáp án nhiễu lấy ngẫu nhiên cùng chủ đề & cùng loại (số/chữ). Lưu câu sai (`quizWrong`), thống kê (`quizStats`, đồng bộ vào hồ sơ `data.quiz`). Có đếm giờ 20s/câu (tắt được), đọc câu hỏi, phím A/B/C/D + Enter.

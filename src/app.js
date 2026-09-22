@@ -534,6 +534,7 @@ function buildLessons() {
     <p style="color:#e9dcc9">Mẹo: bật <b>🗣️ Đọc nước</b> và chơi lại thế cờ vừa xem trong video ở chế độ <b>2 bạn cùng máy</b>.</p>`;
   $('#l1').innerHTML = l1; $('#l5').innerHTML = l5; $('#video').innerHTML = video; $('#how').innerHTML = how;
   buildBook();
+  buildQuiz();
 }
 
 // ===== "Sách cờ vua cho bé" — our own picture book, page-flip style =====
@@ -578,6 +579,104 @@ function buildBook() {
   let sx = null; page.addEventListener('pointerdown', e => { sx = e.clientX; }); page.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); });
   document.addEventListener('keydown', e => { if (!$('#scrLearn').classList.contains('on') || !$('#book').classList.contains('on')) return; if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
   render(0);
+}
+
+// ===== Rung chuông vàng: multiple choice built from the family's Q&A set (src/quiz.js) =====
+function buildQuiz() {
+  const root = $('#quiz'); if (typeof QUIZ === 'undefined') { root.innerHTML = '<p>Chưa có bộ câu hỏi.</p>'; return; }
+  const TOPIC_SHORT = ['🏯 Lịch sử', '🎎 Phong tục', '🌴 Nam Bộ', '🏞️ Địa lý', '🌕 Trung thu & Tư duy'];
+  const hasNum = t => /\d/.test(t);
+  const norm = t => t.toLowerCase().replace(/\s+/g, ' ').trim();
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // 3 distractors: same topic first, same "kind" (number-ish vs text), never a duplicate answer
+  function options(q) {
+    const same = QUIZ.filter(x => x !== q && x.t === q.t && hasNum(x.a) === hasNum(q.a));
+    const pool = shuffle(same.slice()).concat(shuffle(QUIZ.filter(x => x !== q && x.t !== q.t)));
+    const seen = new Set([norm(q.a)]), out = [];
+    for (const x of pool) { const k = norm(x.a); if (seen.has(k)) continue; seen.add(k); out.push(x.a); if (out.length === 3) break; }
+    return shuffle(out.concat([q.a]));
+  }
+  let cfg = { topic: store.get('quizTopic', -1), n: store.get('quizN', 10), timer: store.get('quizTimer', true) };
+  let run = null, tick = null;
+  const sfx = { ok: () => Sound.ding(), no: () => Sound.thud() };
+  function setup() {
+    clearInterval(tick);
+    const wrongIds = store.get('quizWrong', []);
+    root.innerHTML = `<div class="quiz qsetup">
+      <h2>🔔 Rung chuông vàng — ôn tập</h2>
+      <p>${QUIZ.length} câu trắc nghiệm từ bộ ôn tập của Na. Mỗi lần một câu, chọn 1 trong 4 đáp án. ${wrongIds.length ? `Đang có <b>${wrongIds.length}</b> câu sai cần ôn lại.` : ''}</p>
+      <div class="seg" id="qTopic"><span>Chủ đề:</span><button data-t="-1" class="${cfg.topic === -1 ? 'on' : ''}">🎲 Trộn tất cả</button>${QUIZ_TOPICS.map((t, i) => `<button data-t="${i}" class="${cfg.topic === i ? 'on' : ''}" title="${esc(t)}">${TOPIC_SHORT[i] || t}</button>`).join('')}${wrongIds.length ? `<button data-t="wrong" class="${cfg.topic === 'wrong' ? 'on' : ''}">🔁 Câu đã sai (${wrongIds.length})</button>` : ''}</div>
+      <div class="seg" id="qN"><span>Số câu:</span>${[5, 10, 20, 50].map(n => `<button data-n="${n}" class="${cfg.n === n ? 'on' : ''}">${n} câu</button>`).join('')}</div>
+      <div class="seg" id="qT"><span>⏱ Đếm giờ:</span><button data-tm="1" class="${cfg.timer ? 'on' : ''}">20 giây/câu</button><button data-tm="0" class="${!cfg.timer ? 'on' : ''}">Không giới hạn</button></div>
+      <div><button class="btn red" id="qStart" style="font-size:22px;padding:14px 28px">🔔 Bắt đầu thi</button></div>
+      ${renderStats()}
+    </div>`;
+    $$('#qTopic button').forEach(b => b.onclick = () => { cfg.topic = b.dataset.t === 'wrong' ? 'wrong' : +b.dataset.t; store.set('quizTopic', cfg.topic); setup(); });
+    $$('#qN button').forEach(b => b.onclick = () => { cfg.n = +b.dataset.n; store.set('quizN', cfg.n); setup(); });
+    $$('#qT button').forEach(b => b.onclick = () => { cfg.timer = b.dataset.tm === '1'; store.set('quizTimer', cfg.timer); setup(); });
+    $('#qStart').onclick = start;
+  }
+  function renderStats() {
+    const st = store.get('quizStats', null); if (!st || !st.played) return '';
+    return `<div class="qstats"><span>🎯 ${st.played} lượt thi</span><span>✅ ${st.correct}/${st.total} câu đúng</span><span>🏆 Kỷ lục: ${st.best}%</span></div>`;
+  }
+  function start() {
+    Sound.unlock();
+    let pool = cfg.topic === 'wrong' ? store.get('quizWrong', []).map(i => QUIZ[i]).filter(Boolean) : cfg.topic === -1 ? QUIZ.slice() : QUIZ.filter(x => x.t === cfg.topic);
+    if (!pool.length) { pool = QUIZ.slice(); }
+    const list = shuffle(pool).slice(0, cfg.n).map(q => ({ q, opts: options(q) }));
+    run = { list, i: 0, score: 0, wrong: [], answered: false, t0: Date.now() };
+    show();
+  }
+  function show() {
+    clearInterval(tick);
+    const it = run.list[run.i], q = it.q, total = run.list.length;
+    root.innerHTML = `<div class="quiz">
+      <div class="qtop"><span class="prog">Câu ${run.i + 1}/${total}</span><span class="score">⭐ ${run.score}</span><button class="btn sm ghost" id="qQuit">✕ Dừng</button></div>
+      <div class="qbar ${cfg.timer ? '' : 'hidden'}"><i id="qBar" style="width:100%"></i></div>
+      <div class="qcard"><div class="topic">${esc(QUIZ_TOPICS[q.t] || '')}</div><div class="qtext">${esc(q.q)}</div><button class="read" id="qRead" aria-label="Đọc câu hỏi">🔊</button></div>
+      <div class="qopts">${it.opts.map((o, k) => `<button class="qopt" data-k="${k}"><span class="k">${'ABCD'[k]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+      <div class="qfoot"><span class="fb" id="qFb"></span><button class="btn blue hidden" id="qNext">Câu tiếp ▶</button></div>
+    </div>`;
+    $('#qQuit').onclick = () => { if (confirm('Dừng bài thi?')) finish(true); };
+    $('#qRead').onclick = () => Voice.read(q.q);
+    $$('.qopt').forEach(b => b.onclick = () => answer(+b.dataset.k));
+    $('#qNext').onclick = next;
+    if (cfg.timer) { const T = 20000, t0 = Date.now(); tick = setInterval(() => { const left = Math.max(0, T - (Date.now() - t0)); const bar = $('#qBar'); if (!bar) { clearInterval(tick); return; } bar.style.width = (left / T * 100) + '%'; bar.parentElement.classList.toggle('warn', left < 5000); if (left <= 0) { clearInterval(tick); answer(-1); } }, 100); }
+  }
+  function answer(k) {
+    if (!run || run.answered) return; run.answered = true; clearInterval(tick);
+    const it = run.list[run.i], right = it.opts.indexOf(it.q.a), ok = k === right;
+    $$('.qopt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); else if (i === k) b.classList.add('wrong'); else b.classList.add('dim'); });
+    const fb = $('#qFb');
+    if (ok) { run.score++; fb.textContent = ['Đúng rồi! 🎉', 'Giỏi quá! ⭐', 'Chính xác! 👏', 'Tuyệt vời! 🏆'][Math.floor(Math.random() * 4)]; fb.className = 'fb ok'; sfx.ok(); }
+    else { run.wrong.push(QUIZ.indexOf(it.q)); fb.textContent = k < 0 ? 'Hết giờ! ⏰' : 'Chưa đúng 😅'; fb.className = 'fb no'; sfx.no(); }
+    $('#qNext').classList.remove('hidden'); $('#qNext').focus();
+    $('#qNext').textContent = run.i + 1 < run.list.length ? 'Câu tiếp ▶' : 'Xem kết quả 🏁';
+  }
+  function next() { if (!run) return; run.i++; run.answered = false; if (run.i >= run.list.length) finish(false); else show(); }
+  function finish(quit) {
+    clearInterval(tick);
+    const total = quit ? run.i + (run.answered ? 1 : 0) : run.list.length, score = run.score;
+    const pct = total ? Math.round(score / total * 100) : 0;
+    // remember wrong ones for revision; drop the ones answered right this time
+    const wrongSet = new Set(store.get('quizWrong', []));
+    run.list.slice(0, total).forEach(it => { const id = QUIZ.indexOf(it.q); if (run.wrong.includes(id)) wrongSet.add(id); else wrongSet.delete(id); });
+    store.set('quizWrong', [...wrongSet]);
+    const st = store.get('quizStats', { played: 0, correct: 0, total: 0, best: 0 });
+    if (total) { st.played++; st.correct += score; st.total += total; st.best = Math.max(st.best, pct); store.set('quizStats', st); if (typeof Cloud !== 'undefined' && Cloud.active) Cloud.save({ quiz: st }); }
+    const stars = pct >= 90 ? '⭐⭐⭐' : pct >= 70 ? '⭐⭐' : pct >= 50 ? '⭐' : '💪';
+    if (pct >= 70 && total >= 5) { Sound.win(); confetti(); } else Sound.ding();
+    root.innerHTML = `<div class="quiz qend"><h2>${pct >= 90 ? '🔔 Rung chuông vàng!' : pct >= 70 ? '🎉 Giỏi lắm!' : '💪 Cố lên nhé!'}</h2><div class="stars">${stars}</div>
+      <p>Đúng <b>${score}/${total}</b> câu (${pct}%)${run.wrong.length ? ` · ${run.wrong.length} câu sai đã được lưu để ôn lại` : ''}</p>
+      ${run.wrong.length ? `<div class="card" style="text-align:left;margin:12px 0"><h2 style="font-size:20px">📝 Xem lại câu sai</h2>${run.wrong.slice(0, 20).map(id => `<p style="margin:6px 0"><b>${esc(QUIZ[id].q)}</b><br>→ ${esc(QUIZ[id].a)}</p>`).join('')}</div>` : ''}
+      <div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn red" id="qAgain">🔁 Thi tiếp</button>${run.wrong.length ? '<button class="btn blue" id="qRetry">📝 Ôn câu sai ngay</button>' : ''}<button class="btn ghost" id="qBack">⚙️ Chọn lại</button></div></div>`;
+    $('#qAgain').onclick = start; $('#qBack').onclick = setup;
+    const r = $('#qRetry'); if (r) r.onclick = () => { const ids = run.wrong.slice(); run = { list: ids.map(id => ({ q: QUIZ[id], opts: options(QUIZ[id]) })), i: 0, score: 0, wrong: [], answered: false }; show(); };
+    run = null;
+  }
+  document.addEventListener('keydown', e => { if (!run || !$('#quiz').classList.contains('on')) return; const k = 'abcd'.indexOf(e.key.toLowerCase()); if (k >= 0 && !run.answered) answer(k); if ((e.key === 'Enter' || e.key === ' ') && run.answered) { e.preventDefault(); next(); } });
+  setup();
 }
 
 // ===== AI level picker (inline in modal) =====

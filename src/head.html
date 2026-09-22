@@ -172,6 +172,29 @@ body.fs .stage.flat2d{--bw:min(96vw,86vh)}
 .booktools .pg{font:800 18px var(--font-d);color:var(--gold)}
 .bookdots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}.bookdots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25)}.bookdots i.on{background:var(--gold)}.bookdots i.seen{background:rgba(242,182,54,.55)}
 @media (max-width:600px){.book{grid-template-columns:1fr;gap:6px}.book .nav{display:none}.page{padding:16px 16px 40px}.page .row2{grid-template-columns:1fr}}
+/* ---------- quiz (Rung chuông vàng) ---------- */
+.quiz{max-width:860px;margin:0 auto}
+.qsetup{display:grid;gap:14px}
+.qsetup .seg{flex-wrap:wrap}.qsetup .seg button{flex:1 1 30%;min-width:120px;padding:12px 6px;font-size:16px}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.qtop .prog{font:800 20px var(--font-d);color:var(--gold)}.qtop .score{font:800 20px var(--font-d);color:#8ff0b6}
+.qbar{height:10px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden;margin-bottom:14px}.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .2s linear}
+.qbar.warn i{background:var(--red)}
+.qcard{background:linear-gradient(180deg,#fff9ec,#f6e9cc);color:#2a2233;border-radius:20px;padding:22px 24px;box-shadow:0 12px 30px rgba(0,0,0,.45),inset 0 0 0 5px #fff;margin-bottom:14px;position:relative}
+.qcard .topic{font:800 13px var(--font-d);color:#a92a1f;letter-spacing:.5px;text-transform:uppercase}
+.qcard .qtext{font-size:clamp(22px,3.2vw,32px);font-weight:800;line-height:1.35;margin:8px 0 4px;color:#2a2233}
+.qcard .read{position:absolute;right:14px;top:12px;width:44px;height:44px;border-radius:50%;background:var(--gold);font-size:22px}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qopt{display:flex;align-items:center;gap:12px;text-align:left;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.1);border:3px solid rgba(255,255,255,.18);color:var(--paper);font:700 clamp(17px,2.4vw,22px) var(--font-b);min-height:72px;transition:transform .1s}
+.qopt:hover{border-color:var(--gold);transform:translateY(-2px)}
+.qopt .k{flex:none;width:40px;height:40px;border-radius:50%;background:var(--gold);color:#2a1a05;display:grid;place-items:center;font:800 20px var(--font-d)}
+.qopt.right{background:rgba(51,196,111,.3);border-color:var(--green)}.qopt.wrong{background:rgba(228,72,58,.3);border-color:var(--red)}
+.qopt:disabled{cursor:default}.qopt.dim{opacity:.5}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.qfoot .fb{font:800 22px var(--font-d)}.qfoot .fb.ok{color:#8ff0b6}.qfoot .fb.no{color:#ff9a90}
+.qend{text-align:center;padding:20px 0}.qend h2{font-size:44px;color:var(--gold)}.qend .stars{font-size:48px;margin:6px 0}.qend p{font-size:20px}
+.qstats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0 16px}.qstats span{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;font-weight:800}
+@media (max-width:640px){.qopts{grid-template-columns:1fr}.qcard{padding:16px 16px}}
 /* ---------- WebGL canvas ---------- */
 .stage canvas.gl{display:block;width:100% !important;height:100% !important;border-radius:14px;touch-action:none;cursor:pointer}
 .stage.gl3d{padding:0;width:100%;max-width:820px;height:min(72vh,calc(100% * .78),640px);aspect-ratio:1.25;position:relative;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,rgba(120,90,160,.35),rgba(0,0,0,0) 70%)}
@@ -432,12 +455,14 @@ body.fs .fsbar{display:flex}
     <button class="tab" data-lesson="book">📚 Sách cho bé</button>
     <button class="tab on" data-lesson="l1">🌟 Lớp 1 – Bắt đầu</button>
     <button class="tab" data-lesson="l5">🏆 Lớp 5 – Nâng cao</button>
+    <button class="tab" data-lesson="quiz">🔔 Rung chuông vàng</button>
     <button class="tab" data-lesson="video">📺 Xem video</button>
     <button class="tab" data-lesson="how">🖱️ Cách dùng trang này</button>
   </div>
   <div class="lesson" id="book"></div>
   <div class="lesson on" id="l1"></div>
   <div class="lesson" id="l5"></div>
+  <div class="lesson" id="quiz"></div>
   <div class="lesson" id="video"></div>
   <div class="lesson" id="how"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">

@@ -1,6 +1,6 @@
 // Service worker: lets the page install as an app and open offline (except online rooms, which need the network).
 // Bump VERSION whenever index.html changes so old caches are dropped.
-const VERSION = 'cvcb-v3';
+const VERSION = 'cvcb-v4';
 const APP = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'];
 const CDN = /cdnjs\.cloudflare\.com|unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com/;
 
